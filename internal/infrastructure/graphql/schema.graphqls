@@ -1,0 +1,11 @@
+type Query {
+    artist(id: ID!): Artist
+    // other queries...
+}
+
+type Artist {
+    id: ID!
+    name: String!
+    genre: String
+    // other fields...
+}

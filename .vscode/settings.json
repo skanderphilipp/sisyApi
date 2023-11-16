@@ -1,0 +1,20 @@
+{
+  "go.useLanguageServer": true,
+  "gopls": {
+    "ui.semanticTokens": true,
+    "ui.diagnostic.analyses": {
+      "unusedparams": true,
+      "shadow": true
+    },
+    "ui.diagnostic.staticcheck": true
+  },
+  "go.toolsManagement.autoUpdate": true,
+  "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+        "editor.snippetSuggestions": "top",
+        "editor.defaultFormatter": "golang.go"
+  },
+}
