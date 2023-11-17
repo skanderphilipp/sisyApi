@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/skanderphilipp/sisyApi/internal/domain/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -35,5 +36,22 @@ func ProvideDatabase() (*gorm.DB, error) {
 
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
+	err = db.AutoMigrate(&models.Artist{}, &models.SocialMedia{}, &models.Venue{}, &models.Stage{}, &models.Event{}, &models.TimetableEntry{})
+
+	if err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
 	return db, nil
+}
+
+// Ensure you call this function from somewhere in your application, typically main.go
+func CloseDatabaseConnection(db *gorm.DB) {
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Error on getting DB from GORM: %v", err)
+	}
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error on closing db connection: %v", err)
+	}
 }

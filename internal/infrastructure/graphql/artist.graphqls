@@ -1,0 +1,82 @@
+type Artist {
+  id: ID!
+  name: String!
+  location: String
+  soundcloudSetLink: String
+  socialMediaLinks: [SocialMedia]
+}
+
+input CreateArtistInput {
+  name: String!
+  location: String
+  soundcloudSetLink: String
+  socialMedia: [CreateSocialMediaInput] # Include social media creation within the artist input
+}
+
+input UpdateArtistInput {
+  id: ID!
+  name: String
+  location: String
+  soundcloudSetLink: String
+  socialMedia: [UpdateSocialMediaInput] # Include social media updates within the artist input
+}
+
+input ArtistSearchInput {
+  searchTerm: String
+  after: String
+  first: Int
+}
+
+input DeleteArtistInput {
+  id: ID!
+}
+
+type ArtistConnection {
+  edges: [ArtistEdge]
+  pageInfo: PageInfo
+}
+
+type ArtistEdge {
+  node: Artist
+  cursor: String
+}
+
+type SocialMedia {
+  id: ID!
+  platform: String!
+  link: String!
+  artistId: ID! # Include the artistId field
+}
+
+input CreateSocialMediaInput {
+  platform: String!
+  link: String!
+}
+
+input UpdateSocialMediaInput {
+  id: ID!
+  platform: String
+  link: String
+}
+
+input DeleteSocialMediaInput {
+  id: ID!
+}
+
+type Query {
+  getArtist(id: ID!): Artist
+  searchArtists(criteria: ArtistSearchInput!): ArtistConnection
+  getArtistByName(name: String!): Artist
+  listArtists(first: Int, after: String): ArtistConnection
+}
+
+type Mutation {
+  createArtist(input: CreateArtistInput!): Artist!
+  updateArtist(input: UpdateArtistInput!): Artist!
+  deleteArtist(input: DeleteArtistInput!): Boolean!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean
+}

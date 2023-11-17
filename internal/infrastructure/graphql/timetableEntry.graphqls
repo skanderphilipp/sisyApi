@@ -1,0 +1,33 @@
+type TimetableEntry {
+  id: ID!
+  eventID: ID!
+  stageID: ID!
+  stage: Stage
+  artistID: ID!
+  artist: Artist
+  weekNumber: Int
+  year: Int
+  day: String
+  startTime: Time
+  endTime: Time
+}
+
+input CreateTimetableEntryInput {
+  eventID: ID!
+  stageID: ID!
+  artistID: ID!
+  weekNumber: Int
+  year: Int
+  day: String
+  startTime: Time
+  endTime: Time
+}
+
+
+extend type Mutation {
+  createTimetableEntry(input: CreateTimetableEntryInput!): TimetableEntry!
+}
+
+extend type Query {
+  timetableByEventID(eventID: ID!): [TimetableEntry!]!
+}

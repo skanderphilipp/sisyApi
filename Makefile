@@ -1,54 +1,25 @@
-# Application Name
-APP_NAME=sisyApi
+# Makefile for managing Docker containers
 
-# Docker Image Name
-DOCKER_IMAGE_NAME=myapp-image
+# Define the service name if you want to start/stop a specific service
+SERVICE_NAME=api
 
-# Build the Go app
-build:
-	@echo "Building the application..."
-	go build -o $(APP_NAME) .
+# Start the Docker containers
+start:
+	@echo "Starting Docker containers..."
+	docker-compose up -d
 
-# Run tests
-test:
-	@echo "Running tests..."
-	go test ./...
+# Stop the Docker containers
+stop:
+	@echo "Stopping Docker containers..."
+	docker-compose stop
 
-# Run the application
-run:
-	@echo "Running the application..."
-	./$(APP_NAME)
+# Restart a specific service
+restart-service:
+	@echo "Restarting service $(SERVICE_NAME)..."
+	docker-compose stop $(SERVICE_NAME)
+	docker-compose up -d $(SERVICE_NAME)
 
-# Clean up
-clean:
-	@echo "Cleaning up..."
-	rm -f $(APP_NAME)
-
-# Build a Docker container
-docker-build:
-	@echo "Building Docker container..."
-	docker build -t $(DOCKER_IMAGE_NAME) .
-
-# Run Docker container
-docker-run:
-	@echo "Running Docker container..."
-	docker run -d --name $(APP_NAME)-container $(DOCKER_IMAGE_NAME)
-
-# Stop Docker container
-docker-stop:
-	@echo "Stopping Docker container..."
-	docker stop $(APP_NAME)-container
-	docker rm $(APP_NAME)-container
-
-# Remove Docker image
-docker-rmi:
-	@echo "Removing Docker image..."
-	docker rmi $(DOCKER_IMAGE_NAME)
-
-# Docker: Build and run
-docker-up: docker-build docker-run
-
-# Docker: Stop and remove
-docker-down: docker-stop docker-rmi
-
-.PHONY: build test run clean docker-build docker-run docker-stop docker-rmi docker-up docker-down
+# Stop and remove the Docker containers
+down:
+	@echo "Stopping and removing Docker containers..."
+	docker-compose down

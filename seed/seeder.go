@@ -9,7 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	artistModel "github.com/skanderphilipp/sisyApi/internal/domain/artist"
-	"github.com/skanderphilipp/sisyApi/internal/model"
+	"github.com/skanderphilipp/sisyApi/internal/domain/models"
 	"gorm.io/gorm"
 )
 
@@ -88,8 +88,8 @@ func SeedStages(db *gorm.DB) {
 
 	// Iterate through the stage names and create records
 	for _, name := range stageNames {
-		stage := model.Stage{
-			UUID:      uuid.New(),
+		stage := models.Stage{
+			ID:        uuid.New(),
 			StageName: name,
 		}
 
@@ -130,19 +130,33 @@ func SeedTimetableData(db *gorm.DB) {
 		if result.Error != nil {
 			log.Fatalf("Failed to seed stage data: %v", result.Error)
 		}
-		var randomStage model.Stage
+		var randomStage models.Stage
 		db.Order("RANDOM()").First(&randomStage)
 
+		weekNumberValue := gofakeit.Number(1, 52)
+		weekNumber := &weekNumberValue
+
+		// Generate fake data
+		yearValue := gofakeit.Year()
+		dayValue := gofakeit.WeekDay()
+		startTimeValue := gofakeit.Date()
+		endTimeValue := gofakeit.Date()
+
+		// Create pointers to the values
+		year := &yearValue
+		day := &dayValue
+		startTime := &startTimeValue
+		endTime := &endTimeValue
 		// Generate fake data for TimetableEntry
-		timetableEntry := model.TimetableEntry{
-			UUID:       uuid.New(),
-			StageID:    randomStage.UUID,
+		timetableEntry := models.TimetableEntry{
+			ID:         uuid.New(),
+			StageID:    randomStage.ID,
 			ArtistID:   artist.UUID,
-			WeekNumber: gofakeit.Number(1, 52),
-			Year:       gofakeit.Year(),
-			Day:        gofakeit.WeekDay(),
-			StartTime:  gofakeit.Date(),
-			EndTime:    gofakeit.Date(),
+			WeekNumber: weekNumber,
+			Year:       year,
+			Day:        day,
+			StartTime:  startTime,
+			EndTime:    endTime,
 		}
 		result = db.Create(&timetableEntry)
 		if result.Error != nil {

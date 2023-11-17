@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
+	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/skanderphilipp/sisyApi/internal/infrastructure/repository"
 )
 
 type ArtistService struct {
-	repo artist.Repository
+	repo *repository.ArtistRepository
 }
 
-func NewArtistService(repo artist.Repository) *ArtistService {
+func NewArtistService(repo *repository.ArtistRepository) *ArtistService {
 	return &ArtistService{repo: repo}
 }
 
-func (s *ArtistService) GetArtist(ctx context.Context, id uuid.UUID) (*artist.Artist, error) {
-	return s.repo.GetByID(ctx, id)
+func (s *ArtistService) GetArtist(ctx context.Context, id uuid.UUID) (*models.Artist, error) {
+	return s.repo.FindByID(ctx, id)
 }

@@ -1,0 +1,34 @@
+type Venue {
+  id: ID!
+  name: String!
+  description: String
+  stages: [Stage]
+}
+
+input CreateVenueInput {
+  name: String!
+  description: String
+}
+
+type VenueConnection {
+  edges: [VenueEdge!]!
+  pageInfo: PageInfo!
+}
+
+type VenueEdge {
+  node: Venue!
+  cursor: String!
+}
+
+
+extend type Query {
+  listVenues(first: Int, after: String): VenueConnection!
+  allVenues: [Venue!]
+  venue(id: ID!): Venue
+
+}
+
+extend type Mutation {
+  createVenue(input: CreateVenueInput!): Venue!
+}
+

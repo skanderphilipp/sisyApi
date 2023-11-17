@@ -19,16 +19,6 @@ type Artist struct {
 	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
-type SocialMediaPlatform string
-
-const (
-	Twitter    SocialMediaPlatform = "Twitter"
-	Facebook   SocialMediaPlatform = "Facebook"
-	Instagram  SocialMediaPlatform = "Instagram"
-	YouTube    SocialMediaPlatform = "YouTube"
-	Soundcloud SocialMediaPlatform = "Soundcloud"
-)
-
 // SocialMedia represents the social media model with soft delete
 type SocialMedia struct {
 	UUID                uuid.UUID      `gorm:"type:uuid;primaryKey;" json:"id"`

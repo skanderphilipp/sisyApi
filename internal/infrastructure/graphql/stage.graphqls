@@ -1,0 +1,19 @@
+
+type Stage {
+  id: ID!
+  stageName: String!
+  venueID: ID!
+}
+
+input CreateStageInput {
+  stageName: String!
+  venueID: ID!
+}
+
+extend type Query {
+  stagesByVenue(venueID: ID!): [Stage!]
+}
+
+extend type Mutation {
+  createStage(input: CreateStageInput!): Stage!
+}

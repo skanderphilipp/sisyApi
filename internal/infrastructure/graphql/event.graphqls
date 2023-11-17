@@ -1,0 +1,52 @@
+scalar Time
+
+type Event {
+  id: ID!
+  venue: Venue!
+  startDate: Time!
+  endDate: Time!
+  timetable: [TimetableEntry]
+  timetableByStage: [StageWithTimetableEntries]
+}
+
+type StageWithTimetableEntries {
+  stage: Stage!
+  entries: [TimetableEntry!]!
+}
+
+type EventConnection {
+  edges: [EventEdge]
+  pageInfo: PageInfo
+}
+
+type EventEdge {
+  cursor: String
+  node: Event
+}
+
+input DeleteEventInput {
+  id: ID!
+}
+
+extend type Query {
+  listEvents(first: Int, after: String, last: Int, before: String): EventConnection
+  getEvent(id: ID!): Event
+  getUpcomingEventsByVenue(venueID: ID!): EventConnection
+  getPastEventsByVenue(venueID: ID!): EventConnection
+  getAllUpcomingEvents: EventConnection
+  getTodayEvents: EventConnection
+  getTommorowEvents: EventConnection
+  getCurrentEvents: EventConnection
+  getEventsByVenue(venueID: ID!): EventConnection
+}
+
+extend type Mutation {
+  createEvent(input: CreateEventInput!): Event!
+  deleteEvent(input: DeleteEventInput!): Boolean!
+}
+
+input CreateEventInput {
+  venueID: ID!
+  startDate: Time! # ISO 8601 format
+  endDate: Time!   # ISO 8601 format
+}
