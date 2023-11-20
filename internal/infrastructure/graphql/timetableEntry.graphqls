@@ -23,11 +23,26 @@ input CreateTimetableEntryInput {
   endTime: Time
 }
 
+input DeleteTimetableEntryInput {
+  id: ID!
+}
+
+type TimetableEntryConnection {
+  edges: [TimetableEntry!]!
+  pageInfo: PageInfo!
+}
+
+type TimeTableEntryEdge {
+  cursor: String!
+  node: TimetableEntry!
+}
 
 extend type Mutation {
   createTimetableEntry(input: CreateTimetableEntryInput!): TimetableEntry!
+  deleteTimeTableEntry(input: DeleteTimetableEntryInput!): Boolean!
 }
 
 extend type Query {
+  getTimetableEntriesByEventID(eventID: ID!): TimetableEntryConnection
   timetableByEventID(eventID: ID!): [TimetableEntry!]!
 }

@@ -5,20 +5,16 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
+	"github.com/skanderphilipp/sisyApi/internal/domain/event"
+	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
+	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
+	"github.com/skanderphilipp/sisyApi/internal/infrastructure/api/artistApi"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func ProvideDatabase() (*gorm.DB, error) {
-	// Logic to create and return a GORM DB instance connected to PostgreSQL
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-
 	// Read environment variables
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
@@ -36,7 +32,7 @@ func ProvideDatabase() (*gorm.DB, error) {
 
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
-	err = db.AutoMigrate(&models.Artist{}, &models.SocialMedia{}, &models.Venue{}, &models.Stage{}, &models.Event{}, &models.TimetableEntry{})
+	err = db.AutoMigrate(&artist.Artist{}, &artist.SocialMedia{}, &venue.Venue{}, &stage.Stage{}, &event.Event{}, &event.TimetableEntry{}, &artistApi.OAuthToken{})
 
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)

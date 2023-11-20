@@ -2,14 +2,23 @@ type Artist {
   id: ID!
   name: String!
   location: String
-  soundcloudSetLink: String
+  city: String
+  country: String
+  avatarUrl: String
+  firstName: String
+  lastName: String
+  fullName: String
+  username: String
+  description: String
+  soundcloudPromotedSet: String
   socialMediaLinks: [SocialMedia]
+
 }
 
 input CreateArtistInput {
   name: String!
   location: String
-  soundcloudSetLink: String
+  soundcloudPromotedSet: String
   socialMedia: [CreateSocialMediaInput] # Include social media creation within the artist input
 }
 
@@ -17,7 +26,7 @@ input UpdateArtistInput {
   id: ID!
   name: String
   location: String
-  soundcloudSetLink: String
+  soundcloudPromotedSet: String
   socialMedia: [UpdateSocialMediaInput] # Include social media updates within the artist input
 }
 

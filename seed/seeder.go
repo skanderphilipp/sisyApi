@@ -1,169 +1,143 @@
 package seed
 
 import (
-	"fmt"
-	"log"
-	"math/rand"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
-	artistModel "github.com/skanderphilipp/sisyApi/internal/domain/artist"
 	"github.com/skanderphilipp/sisyApi/internal/domain/models"
 	"gorm.io/gorm"
 )
 
-func runSeedersIfNeeded(db *gorm.DB) {
-	var isSeeded bool
-	// Assume 'settings' is a table and 'seeded' is a column that stores a boolean
-	db.Raw("SELECT seeded FROM settings").Scan(&isSeeded)
+func SeedDatabase(db *gorm.DB) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil || tx.Error != nil {
+			tx.Rollback()
+		}
+	}()
 
-	if !isSeeded {
-		// Run your seeders here
-		// ...
-		SeedArtistData(db)
-		SeedStages(db)
-		SeedTimetableData(db)
-		// Update the flag
-		db.Exec("UPDATE settings SET seeded = true")
+	var venues []models.Venue
+	var stages []models.Stage
+	var artists []models.Artist
+	var err error
+
+	if venues, err = seedVenues(tx, 2); err != nil {
+		return err
 	}
+
+	if stages, err = seedStages(tx, venues, 20); err != nil {
+		return err
+	}
+
+	if artists, err = seedArtists(tx, 30); err != nil {
+		return err
+	}
+
+	if err = seedEventsAndTimetableEntries(tx, venues, stages, artists, 20, 20); err != nil {
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
-func SeedArtistData(db *gorm.DB) {
-	// Initialize the random seed for gofakeit
-	gofakeit.Seed(0)
-
-	for i := 0; i < 150; i++ {
-		// Generate fake data for each Artist
-		artist := artistModel.Artist{
-			UUID:              uuid.New(),
-			Name:              gofakeit.Name(),
-			Location:          gofakeit.City(),
-			SoundcloudSetLink: gofakeit.URL(),
-		}
-
-		result := db.Create(&artist)
-		if result.Error != nil {
-			log.Fatalf("Failed to seed artist data: %v", result.Error)
-		}
-
-		// Generate fake data for associated SocialMedia
-		// Randomly decide the number of social media links (for variety)
-		numLinks := rand.Intn(5) + 1 // Ensure at least 1 link
-		for j := 0; j < numLinks; j++ {
-			socialMedia := artistModel.SocialMedia{
-				UUID:                uuid.New(),
-				ArtistID:            artist.UUID,
-				SocialMediaPlatform: randomSocialMediaPlatform(),
-				Link:                gofakeit.URL(),
-			}
-
-			result = db.Create(&socialMedia)
-			if result.Error != nil {
-				log.Fatalf("Failed to seed social media data: %v", result.Error)
-			}
-		}
+func seedVenues(tx *gorm.DB, count int) ([]models.Venue, error) {
+	venues := make([]models.Venue, count)
+	for i := range venues {
+		sentence := gofakeit.Sentence(10)
+		venues[i].ID = uuid.New()
+		venues[i].Name = gofakeit.Name()
+		venues[i].Description = &sentence
 	}
+
+	if err := tx.Create(&venues).Error; err != nil {
+		return nil, err
+	}
+
+	return venues, nil
 }
 
-// randomSocialMediaPlatform returns a random social media platform
-func randomSocialMediaPlatform() string {
-	platforms := []string{
-		string(artistModel.Twitter),
-		string(artistModel.Facebook),
-		string(artistModel.Instagram),
-		string(artistModel.YouTube),
-		string(artistModel.Soundcloud),
+func seedStages(tx *gorm.DB, venues []models.Venue, count int) ([]models.Stage, error) {
+	stages := make([]models.Stage, count)
+	for i := range stages {
+		stages[i].ID = uuid.New()
+		stages[i].StageName = gofakeit.Word()
+		stages[i].VenueID = venues[i%len(venues)].ID
 	}
-	rand.Seed(time.Now().UnixNano())
-	return platforms[rand.Intn(len(platforms))]
+
+	if err := tx.Create(&stages).Error; err != nil {
+		return nil, err
+	}
+
+	return stages, nil
 }
 
-func SeedStages(db *gorm.DB) {
-	// Create a random seed for generating UUIDs
-	rand.Seed(time.Now().UnixNano())
+func seedArtists(tx *gorm.DB, count int) ([]models.Artist, error) {
+	artists := make([]models.Artist, count)
+	for i := range artists {
+		city := gofakeit.City()
+		url := gofakeit.URL()
+		artists[i].ID = uuid.New()
+		artists[i].Name = gofakeit.Name()
+		artists[i].Location = &city
+		artists[i].SoundcloudSetLink = &url
+	}
 
-	// Define the stage names
-	stageNames := []string{"Hammahalle", "Wintergarten", "Dampfer", "Tunnel", "Strand"}
+	if err := tx.Create(&artists).Error; err != nil {
+		return nil, err
+	}
 
-	// Iterate through the stage names and create records
-	for _, name := range stageNames {
-		stage := models.Stage{
+	return artists, nil
+}
+
+func seedEventsAndTimetableEntries(tx *gorm.DB, venues []models.Venue, stages []models.Stage, artists []models.Artist, eventCount, timetableEntryCount int) error {
+	for i := 0; i < eventCount; i++ {
+		// Generate random start and end dates for the event
+		startDate, endDate := generateRandomDates()
+		event := models.Event{
 			ID:        uuid.New(),
-			StageName: name,
+			VenueID:   venues[i%len(venues)].ID,
+			StartDate: startDate,
+			EndDate:   endDate,
 		}
 
-		result := db.Create(&stage)
+		for j := 0; j < timetableEntryCount; j++ {
+			entryStartTime, entryEndTime := generateRandomTimeEntries(startDate, endDate)
 
-		if result.Error != nil {
-			fmt.Printf("Error seeding stage %s: %v\n", name, result.Error)
-		} else {
-			fmt.Printf("Seeded stage: %s\n", name)
+			timetableEntry := &models.TimetableEntry{ // Create a pointer
+				EventID:   event.ID,
+				StageID:   stages[j%len(stages)].ID,
+				ArtistID:  artists[j%len(artists)].ID,
+				StartTime: &entryStartTime,
+				EndTime:   &entryEndTime,
+			}
+
+			event.Timetable = append(event.Timetable, timetableEntry)
+		}
+
+		// Create the event with its timetable entries after the inner loop
+		if err := tx.Create(&event).Error; err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
-func SeedTimetableData(db *gorm.DB) {
-	// Initialize the random seed for gofakeit
-	gofakeit.Seed(0)
+// generateRandomDates returns random start and end dates
+func generateRandomDates() (time.Time, time.Time) {
+	now := time.Now()
+	randomDays := gofakeit.Number(-100, 100) // Random number of days up to +/- 1 year
+	startDate := now.AddDate(0, 0, randomDays)
+	endDate := startDate.AddDate(0, 0, gofakeit.Number(1, 4)) // Event lasts between 1 to 30 days
+	return startDate, endDate
+}
 
-	// Create maps to store generated UUIDs for Artists and Stages
-	artistUUIDs := make(map[string]uuid.UUID)
-
-	for i := 0; i < 150; i++ {
-		// Generate fake data for each Artist
-		artist := artistModel.Artist{
-			UUID:              uuid.New(),
-			Name:              gofakeit.Name(),
-			Location:          gofakeit.City(),
-			SoundcloudSetLink: gofakeit.URL(),
-		}
-
-		result := db.Create(&artist)
-		if result.Error != nil {
-			log.Fatalf("Failed to seed artist data: %v", result.Error)
-		}
-
-		// Store the generated UUID for the artist
-		artistUUIDs[artist.Name] = artist.UUID
-
-		if result.Error != nil {
-			log.Fatalf("Failed to seed stage data: %v", result.Error)
-		}
-		var randomStage models.Stage
-		db.Order("RANDOM()").First(&randomStage)
-
-		weekNumberValue := gofakeit.Number(1, 52)
-		weekNumber := &weekNumberValue
-
-		// Generate fake data
-		yearValue := gofakeit.Year()
-		dayValue := gofakeit.WeekDay()
-		startTimeValue := gofakeit.Date()
-		endTimeValue := gofakeit.Date()
-
-		// Create pointers to the values
-		year := &yearValue
-		day := &dayValue
-		startTime := &startTimeValue
-		endTime := &endTimeValue
-		// Generate fake data for TimetableEntry
-		timetableEntry := models.TimetableEntry{
-			ID:         uuid.New(),
-			StageID:    randomStage.ID,
-			ArtistID:   artist.UUID,
-			WeekNumber: weekNumber,
-			Year:       year,
-			Day:        day,
-			StartTime:  startTime,
-			EndTime:    endTime,
-		}
-		result = db.Create(&timetableEntry)
-		if result.Error != nil {
-			log.Fatalf("Failed to seed timetable entry data: %v", result.Error)
-		}
+// generateRandomEntryDates returns random start and end times for a timetable entry within the given date range
+func generateRandomTimeEntries(startDate, endDate time.Time) (time.Time, time.Time) {
+	entryStart := gofakeit.DateRange(startDate, endDate)
+	entryEnd := entryStart.Add(time.Duration(gofakeit.Number(1, 4)) * time.Hour) // Lasts 1 to 4 hours
+	if entryEnd.After(endDate) {
+		entryEnd = endDate
 	}
-
-	// Now you have artistUUIDs and stageUUIDs maps that store the generated UUIDs
-	// for Artists and Stages, which you can use for other seeding tasks if needed.
+	return entryStart, entryEnd
 }

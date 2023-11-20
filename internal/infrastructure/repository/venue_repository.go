@@ -26,7 +26,7 @@ func (repo *VenueRepository) FindAllByCursor(ctx context.Context, cursor string,
 		query = query.Where("id > ?", cursor)
 	}
 
-	err := query.Limit(limit).Preload("SocialMediaLinks").Find(&venues).Error
+	err := query.Limit(limit).Preload("Stages").Find(&venues).Error
 	if err != nil {
 		return nil, "", err
 	}

@@ -34,6 +34,9 @@ func NewApp(db *gorm.DB, artistService *service.ArtistService, logger *zap.Logge
 func InitializeDependencies() (*App, error) {
 	// Create a database connection
 	db, err := repository.ProvideDatabase()
+
+	// seed.SeedDatabase(db)
+
 	if err != nil {
 		return nil, err
 	}

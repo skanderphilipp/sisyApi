@@ -17,41 +17,57 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
 }
 
-func (repo *EventRepository) FindUpcomingByVenueID(ctx context.Context, venueID uuid.UUID) ([]models.Event, error) {
-	var events []models.Event
+func (repo *EventRepository) FindUpcomingByVenueID(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
+	var events []*models.Event
 	err := repo.db.WithContext(ctx).Where("venue_id = ? AND start_date > ?", venueID, time.Now()).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindPastEventsByVenueID(ctx context.Context, venueID uuid.UUID) ([]models.Event, error) {
-	var events []models.Event
+func (repo *EventRepository) FindPastEventsByVenueID(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
+	var events []*models.Event
 	err := repo.db.WithContext(ctx).Where("venue_id = ? AND end_date < ?", venueID, time.Now()).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindAllUpcoming(ctx context.Context) ([]models.Event, error) {
-	var events []models.Event
-	err := repo.db.WithContext(ctx).Where("start_date > ?", time.Now()).Find(&events).Error
-	return events, err
+func (repo *EventRepository) FindAllUpcoming(ctx context.Context, cursort string, limit int) ([]*models.Event, string, error) {
+	var events []*models.Event
+	var nextCursor string
+
+	err := repo.db.WithContext(ctx).Where("start_date > ?", time.Now()).
+		Preload("Venue.Stages").
+		Preload("Timetable.Stage").
+		Preload("Timetable.Artist").
+		Find(&events).Error
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Set next cursor
+	if len(events) > 0 {
+		nextCursor = events[len(events)-1].ID.String() // Assuming ID is a UUID
+	}
+
+	return events, nextCursor, nil
 }
 
-func (repo *EventRepository) FindToday(ctx context.Context) ([]models.Event, error) {
+func (repo *EventRepository) FindToday(ctx context.Context) ([]*models.Event, error) {
 	today := time.Now()
-	var events []models.Event
+	var events []*models.Event
 	err := repo.db.WithContext(ctx).Where("DATE(start_date) = DATE(?)", today).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindTomorrow(ctx context.Context) ([]models.Event, error) {
+func (repo *EventRepository) FindTomorrow(ctx context.Context) ([]*models.Event, error) {
 	tomorrow := time.Now().AddDate(0, 0, 1)
-	var events []models.Event
+	var events []*models.Event
 	err := repo.db.WithContext(ctx).Where("DATE(start_date) = DATE(?)", tomorrow).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindCurrent(ctx context.Context) ([]models.Event, error) {
+func (repo *EventRepository) FindCurrent(ctx context.Context) ([]*models.Event, error) {
 	now := time.Now()
-	var events []models.Event
+	var events []*models.Event
 	err := repo.db.WithContext(ctx).Where("start_date <= ? AND end_date >= ?", now, now).Find(&events).Error
 	return events, err
 }

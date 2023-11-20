@@ -6,12 +6,6 @@ type Event {
   startDate: Time!
   endDate: Time!
   timetable: [TimetableEntry]
-  timetableByStage: [StageWithTimetableEntries]
-}
-
-type StageWithTimetableEntries {
-  stage: Stage!
-  entries: [TimetableEntry!]!
 }
 
 type EventConnection {

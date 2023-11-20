@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/skanderphilipp/sisyApi/internal/utils"
 )
 
 // CreateEvent is the resolver for the createEvent field.
@@ -24,7 +25,18 @@ func (r *mutationResolver) DeleteEvent(ctx context.Context, input models.DeleteE
 
 // ListEvents is the resolver for the listEvents field.
 func (r *queryResolver) ListEvents(ctx context.Context, first *int, after *string, last *int, before *string) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: ListEvents - listEvents"))
+	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, first, after, r.eventRepo.FindAllUpcoming)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, nextCursor, cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetEvent is the resolver for the getEvent field.
@@ -34,51 +46,127 @@ func (r *queryResolver) GetEvent(ctx context.Context, id uuid.UUID) (*models.Eve
 
 // GetUpcomingEventsByVenue is the resolver for the getUpcomingEventsByVenue field.
 func (r *queryResolver) GetUpcomingEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetUpcomingEventsByVenue - getUpcomingEventsByVenue"))
+	limit := 50
+	events, err := r.eventRepo.FindUpcomingByVenueID(ctx, venueID)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetPastEventsByVenue is the resolver for the getPastEventsByVenue field.
 func (r *queryResolver) GetPastEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetPastEventsByVenue - getPastEventsByVenue"))
+	limit := 50
+	events, err := r.eventRepo.FindPastEventsByVenueID(ctx, venueID)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetAllUpcomingEvents is the resolver for the getAllUpcomingEvents field.
 func (r *queryResolver) GetAllUpcomingEvents(ctx context.Context) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetAllUpcomingEvents - getAllUpcomingEvents"))
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+	limit := 100
+
+	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, &limit, nil, r.eventRepo.FindAllUpcoming)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, nextCursor, cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetTodayEvents is the resolver for the getTodayEvents field.
 func (r *queryResolver) GetTodayEvents(ctx context.Context) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetTodayEvents - getTodayEvents"))
+	limit := 100
+	events, err := r.eventRepo.FindToday(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetTommorowEvents is the resolver for the getTommorowEvents field.
 func (r *queryResolver) GetTommorowEvents(ctx context.Context) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetTommorowEvents - getTommorowEvents"))
+	limit := 50
+	events, err := r.eventRepo.FindTomorrow(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 }
 
 // GetCurrentEvents is the resolver for the getCurrentEvents field.
 func (r *queryResolver) GetCurrentEvents(ctx context.Context) (*models.EventConnection, error) {
+	limit := 50
+	events, err := r.eventRepo.FindCurrent(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 	panic(fmt.Errorf("not implemented: GetCurrentEvents - getCurrentEvents"))
 }
 
 // GetEventsByVenue is the resolver for the getEventsByVenue field.
 func (r *queryResolver) GetEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
-	panic(fmt.Errorf("not implemented: GetEventsByVenue - getEventsByVenue"))
-}
+	limit := 50
+	events, err := r.eventRepo.FindUpcomingByVenueID(ctx, venueID)
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) AllEvents(ctx context.Context) ([]*models.Event, error) {
-	panic(fmt.Errorf("not implemented: AllEvents - allEvents"))
-}
-func (r *queryResolver) Event(ctx context.Context, id uuid.UUID) (*models.Event, error) {
-	panic(fmt.Errorf("not implemented: Event - event"))
-}
-func (r *queryResolver) EventsByVenue(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
-	panic(fmt.Errorf("not implemented: EventsByVenue - eventsByVenue"))
+	if err != nil {
+		return nil, fmt.Errorf("error fetching artists: %v", err)
+	}
+
+	cursorFunc := func(event *models.Event) string {
+		return event.ID.String()
+	}
+
+	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
+
+	return eventConnection, nil
 }

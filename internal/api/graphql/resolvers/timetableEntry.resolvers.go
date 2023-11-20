@@ -17,6 +17,16 @@ func (r *mutationResolver) CreateTimetableEntry(ctx context.Context, input model
 	panic(fmt.Errorf("not implemented: CreateTimetableEntry - createTimetableEntry"))
 }
 
+// DeleteTimeTableEntry is the resolver for the deleteTimeTableEntry field.
+func (r *mutationResolver) DeleteTimeTableEntry(ctx context.Context, input models.DeleteTimetableEntryInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteTimeTableEntry - deleteTimeTableEntry"))
+}
+
+// GetTimetableEntriesByEventID is the resolver for the getTimetableEntriesByEventID field.
+func (r *queryResolver) GetTimetableEntriesByEventID(ctx context.Context, eventID uuid.UUID) (*models.TimetableEntryConnection, error) {
+	panic(fmt.Errorf("not implemented: GetTimetableEntriesByEventID - getTimetableEntriesByEventID"))
+}
+
 // TimetableByEventID is the resolver for the timetableByEventID field.
 func (r *queryResolver) TimetableByEventID(ctx context.Context, eventID uuid.UUID) ([]*models.TimetableEntry, error) {
 	panic(fmt.Errorf("not implemented: TimetableByEventID - timetableByEventID"))

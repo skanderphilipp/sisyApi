@@ -50,11 +50,19 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Artist struct {
-		ID                func(childComplexity int) int
-		Location          func(childComplexity int) int
-		Name              func(childComplexity int) int
-		SocialMediaLinks  func(childComplexity int) int
-		SoundcloudSetLink func(childComplexity int) int
+		AvatarURL             func(childComplexity int) int
+		City                  func(childComplexity int) int
+		Country               func(childComplexity int) int
+		Description           func(childComplexity int) int
+		FirstName             func(childComplexity int) int
+		FullName              func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		LastName              func(childComplexity int) int
+		Location              func(childComplexity int) int
+		Name                  func(childComplexity int) int
+		SocialMediaLinks      func(childComplexity int) int
+		SoundcloudPromotedSet func(childComplexity int) int
+		Username              func(childComplexity int) int
 	}
 
 	ArtistConnection struct {
@@ -68,12 +76,11 @@ type ComplexityRoot struct {
 	}
 
 	Event struct {
-		EndDate          func(childComplexity int) int
-		ID               func(childComplexity int) int
-		StartDate        func(childComplexity int) int
-		Timetable        func(childComplexity int) int
-		TimetableByStage func(childComplexity int) int
-		Venue            func(childComplexity int) int
+		EndDate   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		StartDate func(childComplexity int) int
+		Timetable func(childComplexity int) int
+		Venue     func(childComplexity int) int
 	}
 
 	EventConnection struct {
@@ -94,6 +101,7 @@ type ComplexityRoot struct {
 		CreateVenue          func(childComplexity int, input models.CreateVenueInput) int
 		DeleteArtist         func(childComplexity int, input models.DeleteArtistInput) int
 		DeleteEvent          func(childComplexity int, input models.DeleteEventInput) int
+		DeleteTimeTableEntry func(childComplexity int, input models.DeleteTimetableEntryInput) int
 		UpdateArtist         func(childComplexity int, input models.UpdateArtistInput) int
 	}
 
@@ -103,24 +111,25 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllVenues                func(childComplexity int) int
-		GetAllUpcomingEvents     func(childComplexity int) int
-		GetArtist                func(childComplexity int, id uuid.UUID) int
-		GetArtistByName          func(childComplexity int, name string) int
-		GetCurrentEvents         func(childComplexity int) int
-		GetEvent                 func(childComplexity int, id uuid.UUID) int
-		GetEventsByVenue         func(childComplexity int, venueID uuid.UUID) int
-		GetPastEventsByVenue     func(childComplexity int, venueID uuid.UUID) int
-		GetTodayEvents           func(childComplexity int) int
-		GetTommorowEvents        func(childComplexity int) int
-		GetUpcomingEventsByVenue func(childComplexity int, venueID uuid.UUID) int
-		ListArtists              func(childComplexity int, first *int, after *string) int
-		ListEvents               func(childComplexity int, first *int, after *string, last *int, before *string) int
-		ListVenues               func(childComplexity int, first *int, after *string) int
-		SearchArtists            func(childComplexity int, criteria models.ArtistSearchInput) int
-		StagesByVenue            func(childComplexity int, venueID uuid.UUID) int
-		TimetableByEventID       func(childComplexity int, eventID uuid.UUID) int
-		Venue                    func(childComplexity int, id uuid.UUID) int
+		AllVenues                    func(childComplexity int) int
+		GetAllUpcomingEvents         func(childComplexity int) int
+		GetArtist                    func(childComplexity int, id uuid.UUID) int
+		GetArtistByName              func(childComplexity int, name string) int
+		GetCurrentEvents             func(childComplexity int) int
+		GetEvent                     func(childComplexity int, id uuid.UUID) int
+		GetEventsByVenue             func(childComplexity int, venueID uuid.UUID) int
+		GetPastEventsByVenue         func(childComplexity int, venueID uuid.UUID) int
+		GetTimetableEntriesByEventID func(childComplexity int, eventID uuid.UUID) int
+		GetTodayEvents               func(childComplexity int) int
+		GetTommorowEvents            func(childComplexity int) int
+		GetUpcomingEventsByVenue     func(childComplexity int, venueID uuid.UUID) int
+		ListArtists                  func(childComplexity int, first *int, after *string) int
+		ListEvents                   func(childComplexity int, first *int, after *string, last *int, before *string) int
+		ListVenues                   func(childComplexity int, first *int, after *string) int
+		SearchArtists                func(childComplexity int, criteria models.ArtistSearchInput) int
+		StagesByVenue                func(childComplexity int, venueID uuid.UUID) int
+		TimetableByEventID           func(childComplexity int, eventID uuid.UUID) int
+		Venue                        func(childComplexity int, id uuid.UUID) int
 	}
 
 	SocialMedia struct {
@@ -136,9 +145,9 @@ type ComplexityRoot struct {
 		VenueID   func(childComplexity int) int
 	}
 
-	StageWithTimetableEntries struct {
-		Entries func(childComplexity int) int
-		Stage   func(childComplexity int) int
+	TimeTableEntryEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	TimetableEntry struct {
@@ -153,6 +162,11 @@ type ComplexityRoot struct {
 		StartTime  func(childComplexity int) int
 		WeekNumber func(childComplexity int) int
 		Year       func(childComplexity int) int
+	}
+
+	TimetableEntryConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Venue struct {
@@ -181,6 +195,7 @@ type MutationResolver interface {
 	DeleteEvent(ctx context.Context, input models.DeleteEventInput) (bool, error)
 	CreateStage(ctx context.Context, input models.CreateStageInput) (*models.Stage, error)
 	CreateTimetableEntry(ctx context.Context, input models.CreateTimetableEntryInput) (*models.TimetableEntry, error)
+	DeleteTimeTableEntry(ctx context.Context, input models.DeleteTimetableEntryInput) (bool, error)
 	CreateVenue(ctx context.Context, input models.CreateVenueInput) (*models.Venue, error)
 }
 type QueryResolver interface {
@@ -198,6 +213,7 @@ type QueryResolver interface {
 	GetCurrentEvents(ctx context.Context) (*models.EventConnection, error)
 	GetEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error)
 	StagesByVenue(ctx context.Context, venueID uuid.UUID) ([]*models.Stage, error)
+	GetTimetableEntriesByEventID(ctx context.Context, eventID uuid.UUID) (*models.TimetableEntryConnection, error)
 	TimetableByEventID(ctx context.Context, eventID uuid.UUID) ([]*models.TimetableEntry, error)
 	ListVenues(ctx context.Context, first *int, after *string) (*models.VenueConnection, error)
 	AllVenues(ctx context.Context) ([]*models.Venue, error)
@@ -223,12 +239,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Artist.avatarUrl":
+		if e.complexity.Artist.AvatarURL == nil {
+			break
+		}
+
+		return e.complexity.Artist.AvatarURL(childComplexity), true
+
+	case "Artist.city":
+		if e.complexity.Artist.City == nil {
+			break
+		}
+
+		return e.complexity.Artist.City(childComplexity), true
+
+	case "Artist.country":
+		if e.complexity.Artist.Country == nil {
+			break
+		}
+
+		return e.complexity.Artist.Country(childComplexity), true
+
+	case "Artist.description":
+		if e.complexity.Artist.Description == nil {
+			break
+		}
+
+		return e.complexity.Artist.Description(childComplexity), true
+
+	case "Artist.firstName":
+		if e.complexity.Artist.FirstName == nil {
+			break
+		}
+
+		return e.complexity.Artist.FirstName(childComplexity), true
+
+	case "Artist.fullName":
+		if e.complexity.Artist.FullName == nil {
+			break
+		}
+
+		return e.complexity.Artist.FullName(childComplexity), true
+
 	case "Artist.id":
 		if e.complexity.Artist.ID == nil {
 			break
 		}
 
 		return e.complexity.Artist.ID(childComplexity), true
+
+	case "Artist.lastName":
+		if e.complexity.Artist.LastName == nil {
+			break
+		}
+
+		return e.complexity.Artist.LastName(childComplexity), true
 
 	case "Artist.location":
 		if e.complexity.Artist.Location == nil {
@@ -251,12 +316,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Artist.SocialMediaLinks(childComplexity), true
 
-	case "Artist.soundcloudSetLink":
-		if e.complexity.Artist.SoundcloudSetLink == nil {
+	case "Artist.soundcloudPromotedSet":
+		if e.complexity.Artist.SoundcloudPromotedSet == nil {
 			break
 		}
 
-		return e.complexity.Artist.SoundcloudSetLink(childComplexity), true
+		return e.complexity.Artist.SoundcloudPromotedSet(childComplexity), true
+
+	case "Artist.username":
+		if e.complexity.Artist.Username == nil {
+			break
+		}
+
+		return e.complexity.Artist.Username(childComplexity), true
 
 	case "ArtistConnection.edges":
 		if e.complexity.ArtistConnection.Edges == nil {
@@ -313,13 +385,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Event.Timetable(childComplexity), true
-
-	case "Event.timetableByStage":
-		if e.complexity.Event.TimetableByStage == nil {
-			break
-		}
-
-		return e.complexity.Event.TimetableByStage(childComplexity), true
 
 	case "Event.venue":
 		if e.complexity.Event.Venue == nil {
@@ -440,6 +505,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteEvent(childComplexity, args["input"].(models.DeleteEventInput)), true
 
+	case "Mutation.deleteTimeTableEntry":
+		if e.complexity.Mutation.DeleteTimeTableEntry == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteTimeTableEntry_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteTimeTableEntry(childComplexity, args["input"].(models.DeleteTimetableEntryInput)), true
+
 	case "Mutation.updateArtist":
 		if e.complexity.Mutation.UpdateArtist == nil {
 			break
@@ -546,6 +623,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetPastEventsByVenue(childComplexity, args["venueID"].(uuid.UUID)), true
+
+	case "Query.getTimetableEntriesByEventID":
+		if e.complexity.Query.GetTimetableEntriesByEventID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getTimetableEntriesByEventID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetTimetableEntriesByEventID(childComplexity, args["eventID"].(uuid.UUID)), true
 
 	case "Query.getTodayEvents":
 		if e.complexity.Query.GetTodayEvents == nil {
@@ -706,19 +795,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stage.VenueID(childComplexity), true
 
-	case "StageWithTimetableEntries.entries":
-		if e.complexity.StageWithTimetableEntries.Entries == nil {
+	case "TimeTableEntryEdge.cursor":
+		if e.complexity.TimeTableEntryEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.StageWithTimetableEntries.Entries(childComplexity), true
+		return e.complexity.TimeTableEntryEdge.Cursor(childComplexity), true
 
-	case "StageWithTimetableEntries.stage":
-		if e.complexity.StageWithTimetableEntries.Stage == nil {
+	case "TimeTableEntryEdge.node":
+		if e.complexity.TimeTableEntryEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.StageWithTimetableEntries.Stage(childComplexity), true
+		return e.complexity.TimeTableEntryEdge.Node(childComplexity), true
 
 	case "TimetableEntry.artist":
 		if e.complexity.TimetableEntry.Artist == nil {
@@ -797,6 +886,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TimetableEntry.Year(childComplexity), true
 
+	case "TimetableEntryConnection.edges":
+		if e.complexity.TimetableEntryConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.TimetableEntryConnection.Edges(childComplexity), true
+
+	case "TimetableEntryConnection.pageInfo":
+		if e.complexity.TimetableEntryConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.TimetableEntryConnection.PageInfo(childComplexity), true
+
 	case "Venue.description":
 		if e.complexity.Venue.Description == nil {
 			break
@@ -871,6 +974,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteArtistInput,
 		ec.unmarshalInputDeleteEventInput,
 		ec.unmarshalInputDeleteSocialMediaInput,
+		ec.unmarshalInputDeleteTimetableEntryInput,
 		ec.unmarshalInputUpdateArtistInput,
 		ec.unmarshalInputUpdateSocialMediaInput,
 	)
@@ -1098,6 +1202,21 @@ func (ec *executionContext) field_Mutation_deleteEvent_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteTimeTableEntry_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.DeleteTimetableEntryInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeleteTimetableEntryInput2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐDeleteTimetableEntryInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateArtist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1200,6 +1319,21 @@ func (ec *executionContext) field_Query_getPastEventsByVenue_args(ctx context.Co
 		}
 	}
 	args["venueID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getTimetableEntriesByEventID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["eventID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventID"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["eventID"] = arg0
 	return args, nil
 }
 
@@ -1535,8 +1669,8 @@ func (ec *executionContext) fieldContext_Artist_location(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Artist_soundcloudSetLink(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+func (ec *executionContext) _Artist_city(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_city(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1549,7 +1683,7 @@ func (ec *executionContext) _Artist_soundcloudSetLink(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SoundcloudSetLink, nil
+		return obj.City, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1563,7 +1697,335 @@ func (ec *executionContext) _Artist_soundcloudSetLink(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Artist_soundcloudSetLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Artist_city(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_country(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_country(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Country, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_country(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_avatarUrl(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_avatarUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AvatarURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_avatarUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_firstName(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_firstName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_firstName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_lastName(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_lastName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_lastName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_fullName(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_fullName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FullName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_fullName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_username(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_description(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Artist_soundcloudPromotedSet(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SoundcloudPromotedSet, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_soundcloudPromotedSet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Artist",
 		Field:      field,
@@ -1763,8 +2225,24 @@ func (ec *executionContext) fieldContext_ArtistEdge_node(ctx context.Context, fi
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -2066,53 +2544,6 @@ func (ec *executionContext) fieldContext_Event_timetable(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Event_timetableByStage(ctx context.Context, field graphql.CollectedField, obj *models.Event) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Event_timetableByStage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TimetableByStage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.StageWithTimetableEntries)
-	fc.Result = res
-	return ec.marshalOStageWithTimetableEntries2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStageWithTimetableEntries(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Event_timetableByStage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Event",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "stage":
-				return ec.fieldContext_StageWithTimetableEntries_stage(ctx, field)
-			case "entries":
-				return ec.fieldContext_StageWithTimetableEntries_entries(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type StageWithTimetableEntries", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _EventConnection_edges(ctx context.Context, field graphql.CollectedField, obj *models.EventConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EventConnection_edges(ctx, field)
 	if err != nil {
@@ -2294,8 +2725,6 @@ func (ec *executionContext) fieldContext_EventEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Event_endDate(ctx, field)
 			case "timetable":
 				return ec.fieldContext_Event_timetable(ctx, field)
-			case "timetableByStage":
-				return ec.fieldContext_Event_timetableByStage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -2348,8 +2777,24 @@ func (ec *executionContext) fieldContext_Mutation_createArtist(ctx context.Conte
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -2415,8 +2860,24 @@ func (ec *executionContext) fieldContext_Mutation_updateArtist(ctx context.Conte
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -2541,8 +3002,6 @@ func (ec *executionContext) fieldContext_Mutation_createEvent(ctx context.Contex
 				return ec.fieldContext_Event_endDate(ctx, field)
 			case "timetable":
 				return ec.fieldContext_Event_timetable(ctx, field)
-			case "timetableByStage":
-				return ec.fieldContext_Event_timetableByStage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -2758,6 +3217,61 @@ func (ec *executionContext) fieldContext_Mutation_createTimetableEntry(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteTimeTableEntry(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteTimeTableEntry(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteTimeTableEntry(rctx, fc.Args["input"].(models.DeleteTimetableEntryInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteTimeTableEntry(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteTimeTableEntry_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createVenue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createVenue(ctx, field)
 	if err != nil {
@@ -2947,8 +3461,24 @@ func (ec *executionContext) fieldContext_Query_getArtist(ctx context.Context, fi
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -3069,8 +3599,24 @@ func (ec *executionContext) fieldContext_Query_getArtistByName(ctx context.Conte
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -3253,8 +3799,6 @@ func (ec *executionContext) fieldContext_Query_getEvent(ctx context.Context, fie
 				return ec.fieldContext_Event_endDate(ctx, field)
 			case "timetable":
 				return ec.fieldContext_Event_timetable(ctx, field)
-			case "timetableByStage":
-				return ec.fieldContext_Event_timetableByStage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -3689,6 +4233,64 @@ func (ec *executionContext) fieldContext_Query_stagesByVenue(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_stagesByVenue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getTimetableEntriesByEventID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getTimetableEntriesByEventID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTimetableEntriesByEventID(rctx, fc.Args["eventID"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.TimetableEntryConnection)
+	fc.Result = res
+	return ec.marshalOTimetableEntryConnection2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐTimetableEntryConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getTimetableEntriesByEventID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_TimetableEntryConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_TimetableEntryConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimetableEntryConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getTimetableEntriesByEventID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4385,8 +4987,8 @@ func (ec *executionContext) fieldContext_Stage_venueID(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _StageWithTimetableEntries_stage(ctx context.Context, field graphql.CollectedField, obj *models.StageWithTimetableEntries) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_StageWithTimetableEntries_stage(ctx, field)
+func (ec *executionContext) _TimeTableEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *models.TimeTableEntryEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTableEntryEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4399,7 +5001,7 @@ func (ec *executionContext) _StageWithTimetableEntries_stage(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Stage, nil
+		return obj.Cursor, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4411,34 +5013,26 @@ func (ec *executionContext) _StageWithTimetableEntries_stage(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Stage)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNStage2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStage(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StageWithTimetableEntries_stage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TimeTableEntryEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "StageWithTimetableEntries",
+		Object:     "TimeTableEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Stage_id(ctx, field)
-			case "stageName":
-				return ec.fieldContext_Stage_stageName(ctx, field)
-			case "venueID":
-				return ec.fieldContext_Stage_venueID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Stage", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _StageWithTimetableEntries_entries(ctx context.Context, field graphql.CollectedField, obj *models.StageWithTimetableEntries) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_StageWithTimetableEntries_entries(ctx, field)
+func (ec *executionContext) _TimeTableEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *models.TimeTableEntryEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTableEntryEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4451,7 +5045,7 @@ func (ec *executionContext) _StageWithTimetableEntries_entries(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Entries, nil
+		return obj.Node, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4463,14 +5057,14 @@ func (ec *executionContext) _StageWithTimetableEntries_entries(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.TimetableEntry)
+	res := resTmp.(*models.TimetableEntry)
 	fc.Result = res
-	return ec.marshalNTimetableEntry2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐTimetableEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNTimetableEntry2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐTimetableEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StageWithTimetableEntries_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TimeTableEntryEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "StageWithTimetableEntries",
+		Object:     "TimeTableEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4772,8 +5366,24 @@ func (ec *executionContext) fieldContext_TimetableEntry_artist(ctx context.Conte
 				return ec.fieldContext_Artist_name(ctx, field)
 			case "location":
 				return ec.fieldContext_Artist_location(ctx, field)
-			case "soundcloudSetLink":
-				return ec.fieldContext_Artist_soundcloudSetLink(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
 				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
 			}
@@ -4983,6 +5593,124 @@ func (ec *executionContext) fieldContext_TimetableEntry_endTime(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimetableEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *models.TimetableEntryConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimetableEntryConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.TimetableEntry)
+	fc.Result = res
+	return ec.marshalNTimetableEntry2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐTimetableEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimetableEntryConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimetableEntryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimetableEntry_id(ctx, field)
+			case "eventID":
+				return ec.fieldContext_TimetableEntry_eventID(ctx, field)
+			case "stageID":
+				return ec.fieldContext_TimetableEntry_stageID(ctx, field)
+			case "stage":
+				return ec.fieldContext_TimetableEntry_stage(ctx, field)
+			case "artistID":
+				return ec.fieldContext_TimetableEntry_artistID(ctx, field)
+			case "artist":
+				return ec.fieldContext_TimetableEntry_artist(ctx, field)
+			case "weekNumber":
+				return ec.fieldContext_TimetableEntry_weekNumber(ctx, field)
+			case "year":
+				return ec.fieldContext_TimetableEntry_year(ctx, field)
+			case "day":
+				return ec.fieldContext_TimetableEntry_day(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TimetableEntry_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TimetableEntry_endTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimetableEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimetableEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *models.TimetableEntryConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimetableEntryConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimetableEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimetableEntryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -7191,7 +7919,7 @@ func (ec *executionContext) unmarshalInputCreateArtistInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "location", "soundcloudSetLink", "socialMedia"}
+	fieldsInOrder := [...]string{"name", "location", "soundcloudPromotedSet", "socialMedia"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7216,15 +7944,15 @@ func (ec *executionContext) unmarshalInputCreateArtistInput(ctx context.Context,
 				return it, err
 			}
 			it.Location = data
-		case "soundcloudSetLink":
+		case "soundcloudPromotedSet":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudSetLink"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudPromotedSet"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SoundcloudSetLink = data
+			it.SoundcloudPromotedSet = data
 		case "socialMedia":
 			var err error
 
@@ -7580,6 +8308,35 @@ func (ec *executionContext) unmarshalInputDeleteSocialMediaInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteTimetableEntryInput(ctx context.Context, obj interface{}) (models.DeleteTimetableEntryInput, error) {
+	var it models.DeleteTimetableEntryInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateArtistInput(ctx context.Context, obj interface{}) (models.UpdateArtistInput, error) {
 	var it models.UpdateArtistInput
 	asMap := map[string]interface{}{}
@@ -7587,7 +8344,7 @@ func (ec *executionContext) unmarshalInputUpdateArtistInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "location", "soundcloudSetLink", "socialMedia"}
+	fieldsInOrder := [...]string{"id", "name", "location", "soundcloudPromotedSet", "socialMedia"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7621,15 +8378,15 @@ func (ec *executionContext) unmarshalInputUpdateArtistInput(ctx context.Context,
 				return it, err
 			}
 			it.Location = data
-		case "soundcloudSetLink":
+		case "soundcloudPromotedSet":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudSetLink"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudPromotedSet"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SoundcloudSetLink = data
+			it.SoundcloudPromotedSet = data
 		case "socialMedia":
 			var err error
 
@@ -7723,8 +8480,24 @@ func (ec *executionContext) _Artist(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "location":
 			out.Values[i] = ec._Artist_location(ctx, field, obj)
-		case "soundcloudSetLink":
-			out.Values[i] = ec._Artist_soundcloudSetLink(ctx, field, obj)
+		case "city":
+			out.Values[i] = ec._Artist_city(ctx, field, obj)
+		case "country":
+			out.Values[i] = ec._Artist_country(ctx, field, obj)
+		case "avatarUrl":
+			out.Values[i] = ec._Artist_avatarUrl(ctx, field, obj)
+		case "firstName":
+			out.Values[i] = ec._Artist_firstName(ctx, field, obj)
+		case "lastName":
+			out.Values[i] = ec._Artist_lastName(ctx, field, obj)
+		case "fullName":
+			out.Values[i] = ec._Artist_fullName(ctx, field, obj)
+		case "username":
+			out.Values[i] = ec._Artist_username(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._Artist_description(ctx, field, obj)
+		case "soundcloudPromotedSet":
+			out.Values[i] = ec._Artist_soundcloudPromotedSet(ctx, field, obj)
 		case "socialMediaLinks":
 			out.Values[i] = ec._Artist_socialMediaLinks(ctx, field, obj)
 		default:
@@ -7859,8 +8632,6 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "timetable":
 			out.Values[i] = ec._Event_timetable(ctx, field, obj)
-		case "timetableByStage":
-			out.Values[i] = ec._Event_timetableByStage(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8024,6 +8795,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createTimetableEntry":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTimetableEntry(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteTimeTableEntry":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteTimeTableEntry(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -8381,6 +9159,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getTimetableEntriesByEventID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getTimetableEntriesByEventID(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "timetableByEventID":
 			field := field
 
@@ -8597,24 +9394,24 @@ func (ec *executionContext) _Stage(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var stageWithTimetableEntriesImplementors = []string{"StageWithTimetableEntries"}
+var timeTableEntryEdgeImplementors = []string{"TimeTableEntryEdge"}
 
-func (ec *executionContext) _StageWithTimetableEntries(ctx context.Context, sel ast.SelectionSet, obj *models.StageWithTimetableEntries) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, stageWithTimetableEntriesImplementors)
+func (ec *executionContext) _TimeTableEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *models.TimeTableEntryEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timeTableEntryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("StageWithTimetableEntries")
-		case "stage":
-			out.Values[i] = ec._StageWithTimetableEntries_stage(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("TimeTableEntryEdge")
+		case "cursor":
+			out.Values[i] = ec._TimeTableEntryEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "entries":
-			out.Values[i] = ec._StageWithTimetableEntries_entries(ctx, field, obj)
+		case "node":
+			out.Values[i] = ec._TimeTableEntryEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8686,6 +9483,50 @@ func (ec *executionContext) _TimetableEntry(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._TimetableEntry_startTime(ctx, field, obj)
 		case "endTime":
 			out.Values[i] = ec._TimetableEntry_endTime(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var timetableEntryConnectionImplementors = []string{"TimetableEntryConnection"}
+
+func (ec *executionContext) _TimetableEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *models.TimetableEntryConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timetableEntryConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimetableEntryConnection")
+		case "edges":
+			out.Values[i] = ec._TimetableEntryConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._TimetableEntryConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9237,6 +10078,11 @@ func (ec *executionContext) unmarshalNDeleteArtistInput2githubᚗcomᚋskanderph
 
 func (ec *executionContext) unmarshalNDeleteEventInput2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐDeleteEventInput(ctx context.Context, v interface{}) (models.DeleteEventInput, error) {
 	res, err := ec.unmarshalInputDeleteEventInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteTimetableEntryInput2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐDeleteTimetableEntryInput(ctx context.Context, v interface{}) (models.DeleteTimetableEntryInput, error) {
+	res, err := ec.unmarshalInputDeleteTimetableEntryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -10065,54 +10911,6 @@ func (ec *executionContext) marshalOStage2ᚖgithubᚗcomᚋskanderphilippᚋsis
 	return ec._Stage(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOStageWithTimetableEntries2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStageWithTimetableEntries(ctx context.Context, sel ast.SelectionSet, v []*models.StageWithTimetableEntries) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOStageWithTimetableEntries2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStageWithTimetableEntries(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOStageWithTimetableEntries2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStageWithTimetableEntries(ctx context.Context, sel ast.SelectionSet, v *models.StageWithTimetableEntries) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._StageWithTimetableEntries(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -10191,6 +10989,13 @@ func (ec *executionContext) marshalOTimetableEntry2ᚖgithubᚗcomᚋskanderphil
 		return graphql.Null
 	}
 	return ec._TimetableEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTimetableEntryConnection2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐTimetableEntryConnection(ctx context.Context, sel ast.SelectionSet, v *models.TimetableEntryConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TimetableEntryConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOUpdateSocialMediaInput2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐUpdateSocialMediaInput(ctx context.Context, v interface{}) ([]*models.UpdateSocialMediaInput, error) {

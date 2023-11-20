@@ -6,7 +6,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/skanderphilipp/sisyApi/internal"
 	"github.com/skanderphilipp/sisyApi/internal/infrastructure/graphql"
@@ -41,13 +43,25 @@ func setupRoutes(router *gin.Engine, app *internal.App) {
 }
 
 func main() {
-	// Initialize the application with Wire
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	app, err := internal.InitializeDependencies()
 	if err != nil {
 		log.Fatalf("Failed to initialize app: %v", err)
 	}
-
+	// artistApi.StartTokenRefreshScheduler(app.DB)
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"POST", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowCredentials: true,
+	}))
+
 	// Setup routes
 	setupRoutes(router, app)
 

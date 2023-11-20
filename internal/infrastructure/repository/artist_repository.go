@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
 	"github.com/skanderphilipp/sisyApi/internal/domain/models"
 	"gorm.io/gorm"
 )
@@ -19,8 +20,8 @@ func NewArtistRepository(db *gorm.DB) *ArtistRepository {
 }
 
 // FindArtistsByCursor fetches a page of artists starting after the given cursor with the specified limit
-func (repo *ArtistRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]models.Artist, string, error) {
-	var artists []models.Artist
+func (repo *ArtistRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]artist.Artist, string, error) {
+	var artists []artist.Artist
 	var nextCursor string
 
 	// Assuming ID is used as the cursor
@@ -43,8 +44,8 @@ func (repo *ArtistRepository) FindAllByCursor(ctx context.Context, cursor string
 	return artists, nextCursor, nil
 }
 
-func (repo *ArtistRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Artist, error) {
-	var artist models.Artist
+func (repo *ArtistRepository) FindByID(ctx context.Context, id uuid.UUID) (*artist.Artist, error) {
+	var artist artist.Artist
 	if err := repo.db.WithContext(ctx).Preload("SocialMediaLinks").Where("id = ?", id).First(&artist).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("artist not found")
@@ -54,8 +55,14 @@ func (repo *ArtistRepository) FindByID(ctx context.Context, id uuid.UUID) (*mode
 	return &artist, nil
 }
 
-func (repo *ArtistRepository) FindByName(ctx context.Context, name string) (*models.Artist, error) {
-	var artist models.Artist
+func (repo *ArtistRepository) FindAllWithPermalink(ctx context.Context) ([]artist.Artist, error) {
+	var artists []artist.Artist
+	result := repo.db.WithContext(ctx).Where("sc_permalink IS NOT NULL AND sc_permalink != ''").Find(&artists)
+	return artists, result.Error
+}
+
+func (repo *ArtistRepository) FindByName(ctx context.Context, name string) (*artist.Artist, error) {
+	var artist artist.Artist
 	if err := repo.db.WithContext(ctx).Preload("SocialMediaLinks").Where("name = ?", name).First(&artist).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("artist not found")
@@ -65,9 +72,9 @@ func (repo *ArtistRepository) FindByName(ctx context.Context, name string) (*mod
 	return &artist, nil
 }
 
-func (r *ArtistRepository) Search(ctx context.Context, criteria *models.ArtistSearchInput) ([]models.Artist, string, error) {
+func (r *ArtistRepository) Search(ctx context.Context, criteria *models.ArtistSearchInput) ([]artist.Artist, string, error) {
 	// Create a GORM query builder
-	query := r.db.Model(&models.Artist{})
+	query := r.db.Model(&artist.Artist{})
 	searchTerm := strings.ToLower(*criteria.SearchTerm)
 	var nextCursor string
 	// Apply filters based on criteria
@@ -81,7 +88,7 @@ func (r *ArtistRepository) Search(ctx context.Context, criteria *models.ArtistSe
 	}
 
 	// Execute the query and retrieve the matching records
-	var artists []models.Artist
+	var artists []artist.Artist
 	if err := query.Limit(*criteria.First).Find(&artists).Error; err != nil {
 		return nil, "", err
 	}
@@ -92,7 +99,7 @@ func (r *ArtistRepository) Search(ctx context.Context, criteria *models.ArtistSe
 	return artists, nextCursor, nil
 }
 
-func (r *ArtistRepository) Save(ctx context.Context, artist *models.Artist) (*models.Artist, error) {
+func (r *ArtistRepository) Save(ctx context.Context, artist *artist.Artist) (*artist.Artist, error) {
 	// Save the artist to the database
 	result := r.db.WithContext(ctx).Save(artist)
 
@@ -105,7 +112,7 @@ func (r *ArtistRepository) Save(ctx context.Context, artist *models.Artist) (*mo
 
 func (r *ArtistRepository) Delete(ctx context.Context, id uuid.UUID) (bool, error) {
 	// Delete the artist with the given ID from the database
-	result := r.db.WithContext(ctx).Delete(&models.Artist{}, id)
+	result := r.db.WithContext(ctx).Delete(&artist.Artist{}, id)
 
 	if result.Error != nil {
 		return false, fmt.Errorf("error deleting artist: %v", result.Error)
@@ -116,4 +123,11 @@ func (r *ArtistRepository) Delete(ctx context.Context, id uuid.UUID) (bool, erro
 	}
 
 	return true, nil
+}
+
+func (r *ArtistRepository) Update(ctx context.Context, artist *artist.Artist) (*artist.Artist, error) {
+	if err := r.db.WithContext(ctx).Save(artist).Error; err != nil {
+		return nil, err
+	}
+	return artist, nil
 }

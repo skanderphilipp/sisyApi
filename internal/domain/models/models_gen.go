@@ -4,21 +4,24 @@ package models
 
 import (
 	"time"
-	"gorm.io/gorm"
+
 	"github.com/google/uuid"
 )
 
-// Artist represents an artist in the system.
 type Artist struct {
-	ID                uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	Name              string         `gorm:"type:varchar(100);not null" json:"name"`
-	Location          *string        `json:"location,omitempty"`
-	SoundcloudSetLink *string        `json:"soundcloudSetLink,omitempty"`
-	SocialMediaLinks  []*SocialMedia `gorm:"foreignKey:ArtistID" json:"socialMediaLinks,omitempty"`
-	CreatedAt         time.Time      `json:"-"`
-	UpdatedAt         time.Time      `json:"-"`
-	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
-	// Additional GORM Model fields like CreatedAt, UpdatedAt can be added here if needed.
+	ID                    uuid.UUID      `json:"id"`
+	Name                  string         `json:"name"`
+	Location              *string        `json:"location,omitempty"`
+	City                  *string        `json:"city,omitempty"`
+	Country               *string        `json:"country,omitempty"`
+	AvatarURL             *string        `json:"avatarUrl,omitempty"`
+	FirstName             *string        `json:"firstName,omitempty"`
+	LastName              *string        `json:"lastName,omitempty"`
+	FullName              *string        `json:"fullName,omitempty"`
+	Username              *string        `json:"username,omitempty"`
+	Description           *string        `json:"description,omitempty"`
+	SoundcloudPromotedSet *string        `json:"soundcloudPromotedSet,omitempty"`
+	SocialMediaLinks      []*SocialMedia `json:"socialMediaLinks,omitempty"`
 }
 
 type ArtistConnection struct {
@@ -38,10 +41,10 @@ type ArtistSearchInput struct {
 }
 
 type CreateArtistInput struct {
-	Name              string                    `json:"name"`
-	Location          *string                   `json:"location,omitempty"`
-	SoundcloudSetLink *string                   `json:"soundcloudSetLink,omitempty"`
-	SocialMedia       []*CreateSocialMediaInput `json:"socialMedia,omitempty"`
+	Name                  string                    `json:"name"`
+	Location              *string                   `json:"location,omitempty"`
+	SoundcloudPromotedSet *string                   `json:"soundcloudPromotedSet,omitempty"`
+	SocialMedia           []*CreateSocialMediaInput `json:"socialMedia,omitempty"`
 }
 
 type CreateEventInput struct {
@@ -88,18 +91,16 @@ type DeleteSocialMediaInput struct {
 	ID uuid.UUID `json:"id"`
 }
 
+type DeleteTimetableEntryInput struct {
+	ID uuid.UUID `json:"id"`
+}
+
 type Event struct {
-	ID        uuid.UUID         `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	VenueID          uuid.UUID  `gorm:"type:uuid;not null" json:"venueID"`
-  Venue            *Venue     `gorm:"foreignKey:VenueID" json:"venue"`
-	StartDate time.Time         `gorm:"not null" json:"startDate"`
-	EndDate   time.Time         `gorm:"not null" json:"endDate"`
-	Timetable        []*TimetableEntry            `json:"timetable,omitempty"`
-	TimetableByStage []*StageWithTimetableEntries `json:"timetableByStage,omitempty" gorm:"-"`
-		//gorm additinonal fields
-	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uuid.UUID         `json:"id"`
+	Venue     *Venue            `json:"venue"`
+	StartDate time.Time         `json:"startDate"`
+	EndDate   time.Time         `json:"endDate"`
+	Timetable []*TimetableEntry `json:"timetable,omitempty"`
 }
 
 type EventConnection struct {
@@ -124,49 +125,42 @@ type SocialMedia struct {
 	ArtistID uuid.UUID `json:"artistId"`
 }
 
-// Stage represents a stage in a venue.
 type Stage struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	StageName string    `gorm:"type:varchar(100);not null" json:"stageName"`
-	VenueID   uuid.UUID `gorm:"type:uuid;foreignKey:VenueID" json:"venueID"`
-	//gorm additinonal fields
-	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	// Additional fields like CreatedAt, UpdatedAt can be added.
+	ID        uuid.UUID `json:"id"`
+	StageName string    `json:"stageName"`
+	VenueID   uuid.UUID `json:"venueID"`
 }
 
-type StageWithTimetableEntries struct {
-	StageId uuid.UUID				 `json:"stageId"`
-	Stage   *Stage            `json:"stage"`
-	Entries []*TimetableEntry `json:"entries"`
+type TimeTableEntryEdge struct {
+	Cursor string          `json:"cursor"`
+	Node   *TimetableEntry `json:"node"`
 }
 
 type TimetableEntry struct {
-	ID         uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	EventID    uuid.UUID  `gorm:"type:uuid;foreignKey:EventID" json:"eventID"`
-	StageID    uuid.UUID  `gorm:"type:uuid;foreignKey:StageID" json:"stageID"`
+	ID         uuid.UUID  `json:"id"`
+	EventID    uuid.UUID  `json:"eventID"`
+	StageID    uuid.UUID  `json:"stageID"`
 	Stage      *Stage     `json:"stage,omitempty"`
-	ArtistID   uuid.UUID  `gorm:"type:uuid;foreignKey:ArtistID" json:"artistID"`
+	ArtistID   uuid.UUID  `json:"artistID"`
 	Artist     *Artist    `json:"artist,omitempty"`
 	WeekNumber *int       `json:"weekNumber,omitempty"`
 	Year       *int       `json:"year,omitempty"`
 	Day        *string    `json:"day,omitempty"`
 	StartTime  *time.Time `json:"startTime,omitempty"`
 	EndTime    *time.Time `json:"endTime,omitempty"`
-	//gorm additinonal fields
-	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	// Additional fields like CreatedAt, UpdatedAt can be added.
+}
+
+type TimetableEntryConnection struct {
+	Edges    []*TimetableEntry `json:"edges"`
+	PageInfo *PageInfo         `json:"pageInfo"`
 }
 
 type UpdateArtistInput struct {
-	ID                uuid.UUID                 `json:"id"`
-	Name              *string                   `json:"name,omitempty"`
-	Location          *string                   `json:"location,omitempty"`
-	SoundcloudSetLink *string                   `json:"soundcloudSetLink,omitempty"`
-	SocialMedia       []*UpdateSocialMediaInput `json:"socialMedia,omitempty"`
+	ID                    uuid.UUID                 `json:"id"`
+	Name                  *string                   `json:"name,omitempty"`
+	Location              *string                   `json:"location,omitempty"`
+	SoundcloudPromotedSet *string                   `json:"soundcloudPromotedSet,omitempty"`
+	SocialMedia           []*UpdateSocialMediaInput `json:"socialMedia,omitempty"`
 }
 
 type UpdateSocialMediaInput struct {
@@ -176,64 +170,10 @@ type UpdateSocialMediaInput struct {
 }
 
 type Venue struct {
-	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	Name        string    `gorm:"type:varchar(100);not null" json:"name"`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
 	Description *string   `json:"description,omitempty"`
-	Stages      []*Stage  `gorm:"foreignKey:VenueID" json:"stages,omitempty"`
-	//gorm additinonal fields
-	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	// Additional fields like CreatedAt, UpdatedAt can be added.
-}
-
-
-// BeforeCreate will set a UUID rather than numeric ID.
-func (artist *Artist) BeforeCreate(tx *gorm.DB) (err error) {
-    if artist.ID == uuid.Nil {
-        artist.ID = uuid.New()
-    }
-    return
-}
-
-// Event BeforeCreate hook
-func (e *Event) BeforeCreate(tx *gorm.DB) (err error) {
-    if e.ID == uuid.Nil {
-        e.ID = uuid.New()
-    }
-    return
-}
-
-// SocialMedia BeforeCreate hook
-func (sm *SocialMedia) BeforeCreate(tx *gorm.DB) (err error) {
-    if sm.ID == uuid.Nil {
-        sm.ID = uuid.New()
-    }
-    return
-}
-
-// Venue BeforeCreate hook
-func (v *Venue) BeforeCreate(tx *gorm.DB) (err error) {
-    if v.ID == uuid.Nil {
-        v.ID = uuid.New()
-    }
-    return
-}
-
-// Stage BeforeCreate hook
-func (s *Stage) BeforeCreate(tx *gorm.DB) (err error) {
-    if s.ID == uuid.Nil {
-        s.ID = uuid.New()
-    }
-    return
-}
-
-// TimetableEntry BeforeCreate hook
-func (te *TimetableEntry) BeforeCreate(tx *gorm.DB) (err error) {
-    if te.ID == uuid.Nil {
-        te.ID = uuid.New()
-    }
-    return
+	Stages      []*Stage  `json:"stages,omitempty"`
 }
 
 type VenueConnection struct {
