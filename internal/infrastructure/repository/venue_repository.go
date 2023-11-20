@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/google/uuid"
+	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +17,8 @@ func NewVenueRepository(db *gorm.DB) *VenueRepository {
 	return &VenueRepository{db: db}
 }
 
-func (repo *VenueRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]models.Venue, string, error) {
-	var venues []models.Venue
+func (repo *VenueRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]venue.Venue, string, error) {
+	var venues []venue.Venue
 	var nextCursor string
 
 	// Assuming ID is used as the cursor
@@ -37,4 +39,37 @@ func (repo *VenueRepository) FindAllByCursor(ctx context.Context, cursor string,
 	}
 
 	return venues, nextCursor, nil
+}
+
+func (r *VenueRepository) Save(ctx context.Context, venue *venue.Venue) (*venue.Venue, error) {
+	// Save the venue to the database
+	result := r.db.WithContext(ctx).Save(venue)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("error saving venue: %v", result.Error)
+	}
+
+	return venue, nil
+}
+
+func (r *VenueRepository) Delete(ctx context.Context, id uuid.UUID) (bool, error) {
+	// Delete the venue with the given ID from the database
+	result := r.db.WithContext(ctx).Delete(&venue.Venue{}, id)
+
+	if result.Error != nil {
+		return false, fmt.Errorf("error deleting venue: %v", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return false, fmt.Errorf("venue not found")
+	}
+
+	return true, nil
+}
+
+func (r *VenueRepository) Update(ctx context.Context, venue *venue.Venue) (*venue.Venue, error) {
+	if err := r.db.WithContext(ctx).Save(venue).Error; err != nil {
+		return nil, err
+	}
+	return venue, nil
 }

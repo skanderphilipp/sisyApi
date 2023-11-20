@@ -14,7 +14,27 @@ import (
 
 // CreateVenue is the resolver for the createVenue field.
 func (r *mutationResolver) CreateVenue(ctx context.Context, input models.CreateVenueInput) (*models.Venue, error) {
-	panic(fmt.Errorf("not implemented: CreateVenue - createVenue"))
+	newVenue := models.Venue{
+		Name: input.Name,
+	}
+
+	// Call the repository function to create the artist
+	createdVenue, err := r.venueService.Save(ctx, &newVenue)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdVenue, nil
+}
+
+// UpdateVenue is the resolver for the updateVenue field.
+func (r *mutationResolver) UpdateVenue(ctx context.Context, id uuid.UUID, input models.CreateVenueInput) (*models.Venue, error) {
+	panic(fmt.Errorf("not implemented: UpdateVenue - updateVenue"))
+}
+
+// DeleteVenue is the resolver for the deleteVenue field.
+func (r *mutationResolver) DeleteVenue(ctx context.Context, id uuid.UUID) (*models.Venue, error) {
+	panic(fmt.Errorf("not implemented: DeleteVenue - deleteVenue"))
 }
 
 // ListVenues is the resolver for the listVenues field.
@@ -33,7 +53,7 @@ func (r *queryResolver) ListVenues(ctx context.Context, first *int, after *strin
 	}
 
 	// Assuming you have an artist repository instance (artistRepo)
-	venues, nextCursor, err := r.venueRepo.FindAllByCursor(ctx, cursor, limit)
+	venues, nextCursor, err := r.venueService.FindAllByCursor(ctx, cursor, limit)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
 	}
@@ -45,7 +65,7 @@ func (r *queryResolver) ListVenues(ctx context.Context, first *int, after *strin
 	for i, venue := range venues {
 		cursorStr := venue.ID.String() // Convert UUID to string
 		edges[i] = &models.VenueEdge{
-			Node:   &venue,
+			Node:   venue,
 			Cursor: cursorStr, // Assuming ID is a UUID
 		}
 	}
@@ -63,12 +83,7 @@ func (r *queryResolver) ListVenues(ctx context.Context, first *int, after *strin
 	return venueConnection, nil
 }
 
-// AllVenues is the resolver for the allVenues field.
-func (r *queryResolver) AllVenues(ctx context.Context) ([]*models.Venue, error) {
-	panic(fmt.Errorf("not implemented: AllVenues - allVenues"))
-}
-
-// Venue is the resolver for the venue field.
-func (r *queryResolver) Venue(ctx context.Context, id uuid.UUID) (*models.Venue, error) {
-	panic(fmt.Errorf("not implemented: Venue - venue"))
+// GetVenue is the resolver for the getVenue field.
+func (r *queryResolver) GetVenue(ctx context.Context, id uuid.UUID) (*models.Venue, error) {
+	panic(fmt.Errorf("not implemented: GetVenue - getVenue"))
 }

@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/skanderphilipp/sisyApi/internal/domain/event"
 	"gorm.io/gorm"
 )
 
@@ -17,20 +18,20 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
 }
 
-func (repo *EventRepository) FindUpcomingByVenueID(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
-	var events []*models.Event
+func (repo *EventRepository) FindUpcomingByVenueID(ctx context.Context, venueID uuid.UUID) ([]*event.Event, error) {
+	var events []*event.Event
 	err := repo.db.WithContext(ctx).Where("venue_id = ? AND start_date > ?", venueID, time.Now()).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindPastEventsByVenueID(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
-	var events []*models.Event
+func (repo *EventRepository) FindPastEventsByVenueID(ctx context.Context, venueID uuid.UUID) ([]*event.Event, error) {
+	var events []*event.Event
 	err := repo.db.WithContext(ctx).Where("venue_id = ? AND end_date < ?", venueID, time.Now()).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindAllUpcoming(ctx context.Context, cursort string, limit int) ([]*models.Event, string, error) {
-	var events []*models.Event
+func (repo *EventRepository) FindAllUpcoming(ctx context.Context, cursort string, limit int) ([]*event.Event, string, error) {
+	var events []*event.Event
 	var nextCursor string
 
 	err := repo.db.WithContext(ctx).Where("start_date > ?", time.Now()).
@@ -51,35 +52,55 @@ func (repo *EventRepository) FindAllUpcoming(ctx context.Context, cursort string
 	return events, nextCursor, nil
 }
 
-func (repo *EventRepository) FindToday(ctx context.Context) ([]*models.Event, error) {
+func (repo *EventRepository) FindToday(ctx context.Context) ([]*event.Event, error) {
 	today := time.Now()
-	var events []*models.Event
+	var events []*event.Event
 	err := repo.db.WithContext(ctx).Where("DATE(start_date) = DATE(?)", today).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindTomorrow(ctx context.Context) ([]*models.Event, error) {
+func (repo *EventRepository) FindTomorrow(ctx context.Context) ([]*event.Event, error) {
 	tomorrow := time.Now().AddDate(0, 0, 1)
-	var events []*models.Event
+	var events []*event.Event
 	err := repo.db.WithContext(ctx).Where("DATE(start_date) = DATE(?)", tomorrow).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) FindCurrent(ctx context.Context) ([]*models.Event, error) {
+func (repo *EventRepository) FindCurrent(ctx context.Context) ([]*event.Event, error) {
 	now := time.Now()
-	var events []*models.Event
+	var events []*event.Event
 	err := repo.db.WithContext(ctx).Where("start_date <= ? AND end_date >= ?", now, now).Find(&events).Error
 	return events, err
 }
 
-func (repo *EventRepository) Save(ctx context.Context, event *models.Event) error {
-	return repo.db.WithContext(ctx).Save(event).Error
+func (repo *EventRepository) Save(ctx context.Context, event *event.Event) (*event.Event, error) {
+	result := repo.db.WithContext(ctx).Save(event)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("error saving artist: %v", result.Error)
+	}
+
+	return event, nil
 }
 
-func (repo *EventRepository) Update(ctx context.Context, event *models.Event) error {
-	return repo.db.WithContext(ctx).Model(&models.Event{}).Where("id = ?", event.ID).Updates(event).Error
+func (repo *EventRepository) Update(ctx context.Context, eventData *event.Event) (*event.Event, error) {
+	if err := repo.db.WithContext(ctx).Save(eventData).Error; err != nil {
+		return nil, err
+	}
+	return eventData, nil
 }
 
-func (repo *EventRepository) Delete(ctx context.Context, eventID uuid.UUID) error {
-	return repo.db.WithContext(ctx).Delete(&models.Event{}, "id = ?", eventID).Error
+func (repo *EventRepository) Delete(ctx context.Context, id uuid.UUID) (bool, error) {
+	// Delete the artist with the given ID from the database
+	result := repo.db.WithContext(ctx).Delete(&event.Event{}, id)
+
+	if result.Error != nil {
+		return false, fmt.Errorf("error deleting artist: %v", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return false, fmt.Errorf("artist not found")
+	}
+
+	return true, nil
 }

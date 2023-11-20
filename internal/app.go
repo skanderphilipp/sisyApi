@@ -11,23 +11,30 @@ import (
 type App struct {
 	DB               *gorm.DB
 	ArtistService    *service.ArtistService
+	EventService     *service.EventService
+	StageService     *service.StageService
+	VenueService     *service.VenueService
 	Logger           *zap.Logger
 	Resolver         *resolvers.Resolver
 	ArtistRepository *repository.ArtistRepository
 	VenueRepository  *repository.VenueRepository
 	EventRepository  *repository.EventRepository
-	// other components like service clients, configuration, etc.
+	StageRepository  *repository.StageRepository
 }
 
-func NewApp(db *gorm.DB, artistService *service.ArtistService, logger *zap.Logger, resolver *resolvers.Resolver, artistRepository *repository.ArtistRepository, venueRepository *repository.VenueRepository, eventRepository *repository.EventRepository) *App {
+func NewApp(config *App) *App {
 	return &App{
-		DB:               db,
-		ArtistService:    artistService,
-		Logger:           logger,
-		Resolver:         resolver,
-		ArtistRepository: artistRepository,
-		VenueRepository:  venueRepository,
-		EventRepository:  eventRepository,
+		DB:               config.DB,
+		ArtistService:    config.ArtistService,
+		EventService:     config.EventService,
+		StageService:     config.StageService,
+		VenueService:     config.VenueService,
+		Logger:           config.Logger,
+		Resolver:         config.Resolver,
+		ArtistRepository: config.ArtistRepository,
+		VenueRepository:  config.VenueRepository,
+		EventRepository:  config.EventRepository,
+		StageRepository:  config.StageRepository,
 	}
 }
 
@@ -45,8 +52,12 @@ func InitializeDependencies() (*App, error) {
 	artistRepo := repository.NewArtistRepository(db)
 	venueRepo := repository.NewVenueRepository(db)
 	eventRepo := repository.NewEventRepository(db)
+	stageRepo := repository.NewStageRepository(db)
 	// Create a service
 	artistService := service.NewArtistService(artistRepo)
+	eventService := service.NewEventService(eventRepo)
+	stageService := service.NewStageService(stageRepo)
+	venueService := service.NewVenueService(venueRepo)
 
 	// Create a logger
 	logger, err := zap.NewDevelopment()
@@ -55,9 +66,22 @@ func InitializeDependencies() (*App, error) {
 	}
 
 	// Create a resolver
-	resolver := resolvers.NewResolver(artistService, artistRepo, venueRepo, eventRepo)
+	resolver := resolvers.NewResolver(artistService, eventService, stageService, venueService)
 
-	return NewApp(db, artistService, logger, resolver, artistRepo, venueRepo, eventRepo), nil
+	appConfig := &App{
+		DB:               db,
+		ArtistService:    artistService,
+		EventService:     eventService,
+		StageService:     stageService,
+		VenueService:     venueService,
+		Logger:           logger,
+		Resolver:         resolver,
+		ArtistRepository: artistRepo,
+		VenueRepository:  venueRepo,
+		EventRepository:  eventRepo,
+		StageRepository:  stageRepo,
+	}
+	return NewApp(appConfig), nil
 }
 
 func provideLogger() (*zap.Logger, error) {

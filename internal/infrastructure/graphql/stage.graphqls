@@ -1,12 +1,12 @@
 
 type Stage {
   id: ID!
-  stageName: String!
+  name: String!
   venueID: ID!
 }
 
 input CreateStageInput {
-  stageName: String!
+  name: String!
   venueID: ID!
 }
 

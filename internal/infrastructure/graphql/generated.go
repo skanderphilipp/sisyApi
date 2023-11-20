@@ -102,7 +102,9 @@ type ComplexityRoot struct {
 		DeleteArtist         func(childComplexity int, input models.DeleteArtistInput) int
 		DeleteEvent          func(childComplexity int, input models.DeleteEventInput) int
 		DeleteTimeTableEntry func(childComplexity int, input models.DeleteTimetableEntryInput) int
+		DeleteVenue          func(childComplexity int, id uuid.UUID) int
 		UpdateArtist         func(childComplexity int, input models.UpdateArtistInput) int
+		UpdateVenue          func(childComplexity int, id uuid.UUID, input models.CreateVenueInput) int
 	}
 
 	PageInfo struct {
@@ -111,7 +113,6 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllVenues                    func(childComplexity int) int
 		GetAllUpcomingEvents         func(childComplexity int) int
 		GetArtist                    func(childComplexity int, id uuid.UUID) int
 		GetArtistByName              func(childComplexity int, name string) int
@@ -123,13 +124,13 @@ type ComplexityRoot struct {
 		GetTodayEvents               func(childComplexity int) int
 		GetTommorowEvents            func(childComplexity int) int
 		GetUpcomingEventsByVenue     func(childComplexity int, venueID uuid.UUID) int
+		GetVenue                     func(childComplexity int, id uuid.UUID) int
 		ListArtists                  func(childComplexity int, first *int, after *string) int
 		ListEvents                   func(childComplexity int, first *int, after *string, last *int, before *string) int
 		ListVenues                   func(childComplexity int, first *int, after *string) int
 		SearchArtists                func(childComplexity int, criteria models.ArtistSearchInput) int
 		StagesByVenue                func(childComplexity int, venueID uuid.UUID) int
 		TimetableByEventID           func(childComplexity int, eventID uuid.UUID) int
-		Venue                        func(childComplexity int, id uuid.UUID) int
 	}
 
 	SocialMedia struct {
@@ -140,9 +141,9 @@ type ComplexityRoot struct {
 	}
 
 	Stage struct {
-		ID        func(childComplexity int) int
-		StageName func(childComplexity int) int
-		VenueID   func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Name    func(childComplexity int) int
+		VenueID func(childComplexity int) int
 	}
 
 	TimeTableEntryEdge struct {
@@ -197,6 +198,8 @@ type MutationResolver interface {
 	CreateTimetableEntry(ctx context.Context, input models.CreateTimetableEntryInput) (*models.TimetableEntry, error)
 	DeleteTimeTableEntry(ctx context.Context, input models.DeleteTimetableEntryInput) (bool, error)
 	CreateVenue(ctx context.Context, input models.CreateVenueInput) (*models.Venue, error)
+	UpdateVenue(ctx context.Context, id uuid.UUID, input models.CreateVenueInput) (*models.Venue, error)
+	DeleteVenue(ctx context.Context, id uuid.UUID) (*models.Venue, error)
 }
 type QueryResolver interface {
 	GetArtist(ctx context.Context, id uuid.UUID) (*models.Artist, error)
@@ -216,8 +219,7 @@ type QueryResolver interface {
 	GetTimetableEntriesByEventID(ctx context.Context, eventID uuid.UUID) (*models.TimetableEntryConnection, error)
 	TimetableByEventID(ctx context.Context, eventID uuid.UUID) ([]*models.TimetableEntry, error)
 	ListVenues(ctx context.Context, first *int, after *string) (*models.VenueConnection, error)
-	AllVenues(ctx context.Context) ([]*models.Venue, error)
-	Venue(ctx context.Context, id uuid.UUID) (*models.Venue, error)
+	GetVenue(ctx context.Context, id uuid.UUID) (*models.Venue, error)
 }
 
 type executableSchema struct {
@@ -517,6 +519,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTimeTableEntry(childComplexity, args["input"].(models.DeleteTimetableEntryInput)), true
 
+	case "Mutation.deleteVenue":
+		if e.complexity.Mutation.DeleteVenue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteVenue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteVenue(childComplexity, args["id"].(uuid.UUID)), true
+
 	case "Mutation.updateArtist":
 		if e.complexity.Mutation.UpdateArtist == nil {
 			break
@@ -528,6 +542,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateArtist(childComplexity, args["input"].(models.UpdateArtistInput)), true
+
+	case "Mutation.updateVenue":
+		if e.complexity.Mutation.UpdateVenue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateVenue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateVenue(childComplexity, args["id"].(uuid.UUID), args["input"].(models.CreateVenueInput)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -542,13 +568,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.HasNextPage(childComplexity), true
-
-	case "Query.allVenues":
-		if e.complexity.Query.AllVenues == nil {
-			break
-		}
-
-		return e.complexity.Query.AllVenues(childComplexity), true
 
 	case "Query.getAllUpcomingEvents":
 		if e.complexity.Query.GetAllUpcomingEvents == nil {
@@ -662,6 +681,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUpcomingEventsByVenue(childComplexity, args["venueID"].(uuid.UUID)), true
 
+	case "Query.getVenue":
+		if e.complexity.Query.GetVenue == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getVenue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetVenue(childComplexity, args["id"].(uuid.UUID)), true
+
 	case "Query.listArtists":
 		if e.complexity.Query.ListArtists == nil {
 			break
@@ -734,18 +765,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.TimetableByEventID(childComplexity, args["eventID"].(uuid.UUID)), true
 
-	case "Query.venue":
-		if e.complexity.Query.Venue == nil {
-			break
-		}
-
-		args, err := ec.field_Query_venue_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Venue(childComplexity, args["id"].(uuid.UUID)), true
-
 	case "SocialMedia.artistId":
 		if e.complexity.SocialMedia.ArtistID == nil {
 			break
@@ -781,12 +800,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stage.ID(childComplexity), true
 
-	case "Stage.stageName":
-		if e.complexity.Stage.StageName == nil {
+	case "Stage.name":
+		if e.complexity.Stage.Name == nil {
 			break
 		}
 
-		return e.complexity.Stage.StageName(childComplexity), true
+		return e.complexity.Stage.Name(childComplexity), true
 
 	case "Stage.venueID":
 		if e.complexity.Stage.VenueID == nil {
@@ -971,6 +990,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateStageInput,
 		ec.unmarshalInputCreateTimetableEntryInput,
 		ec.unmarshalInputCreateVenueInput,
+		ec.unmarshalInputCreateVenueStageInput,
 		ec.unmarshalInputDeleteArtistInput,
 		ec.unmarshalInputDeleteEventInput,
 		ec.unmarshalInputDeleteSocialMediaInput,
@@ -1217,6 +1237,21 @@ func (ec *executionContext) field_Mutation_deleteTimeTableEntry_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteVenue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateArtist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1229,6 +1264,30 @@ func (ec *executionContext) field_Mutation_updateArtist_args(ctx context.Context
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateVenue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 models.CreateVenueInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNCreateVenueInput2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐCreateVenueInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -1349,6 +1408,21 @@ func (ec *executionContext) field_Query_getUpcomingEventsByVenue_args(ctx contex
 		}
 	}
 	args["venueID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getVenue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 uuid.UUID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1484,21 +1558,6 @@ func (ec *executionContext) field_Query_timetableByEventID_args(ctx context.Cont
 		}
 	}
 	args["eventID"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_venue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 uuid.UUID
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
 	return args, nil
 }
 
@@ -3116,8 +3175,8 @@ func (ec *executionContext) fieldContext_Mutation_createStage(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Stage_id(ctx, field)
-			case "stageName":
-				return ec.fieldContext_Stage_stageName(ctx, field)
+			case "name":
+				return ec.fieldContext_Stage_name(ctx, field)
 			case "venueID":
 				return ec.fieldContext_Stage_venueID(ctx, field)
 			}
@@ -3331,6 +3390,136 @@ func (ec *executionContext) fieldContext_Mutation_createVenue(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createVenue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateVenue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateVenue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateVenue(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(models.CreateVenueInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Venue)
+	fc.Result = res
+	return ec.marshalNVenue2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateVenue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Venue_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Venue_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Venue_description(ctx, field)
+			case "stages":
+				return ec.fieldContext_Venue_stages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Venue", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateVenue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteVenue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteVenue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteVenue(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Venue)
+	fc.Result = res
+	return ec.marshalNVenue2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteVenue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Venue_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Venue_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Venue_description(ctx, field)
+			case "stages":
+				return ec.fieldContext_Venue_stages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Venue", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteVenue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4217,8 +4406,8 @@ func (ec *executionContext) fieldContext_Query_stagesByVenue(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Stage_id(ctx, field)
-			case "stageName":
-				return ec.fieldContext_Stage_stageName(ctx, field)
+			case "name":
+				return ec.fieldContext_Stage_name(ctx, field)
 			case "venueID":
 				return ec.fieldContext_Stage_venueID(ctx, field)
 			}
@@ -4437,8 +4626,8 @@ func (ec *executionContext) fieldContext_Query_listVenues(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_allVenues(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_allVenues(ctx, field)
+func (ec *executionContext) _Query_getVenue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getVenue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4451,58 +4640,7 @@ func (ec *executionContext) _Query_allVenues(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllVenues(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.Venue)
-	fc.Result = res
-	return ec.marshalOVenue2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenueᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_allVenues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Venue_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Venue_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Venue_description(ctx, field)
-			case "stages":
-				return ec.fieldContext_Venue_stages(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Venue", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_venue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_venue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Venue(rctx, fc.Args["id"].(uuid.UUID))
+		return ec.resolvers.Query().GetVenue(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4516,7 +4654,7 @@ func (ec *executionContext) _Query_venue(ctx context.Context, field graphql.Coll
 	return ec.marshalOVenue2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenue(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_venue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getVenue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4543,7 +4681,7 @@ func (ec *executionContext) fieldContext_Query_venue(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_venue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getVenue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4899,8 +5037,8 @@ func (ec *executionContext) fieldContext_Stage_id(ctx context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Stage_stageName(ctx context.Context, field graphql.CollectedField, obj *models.Stage) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Stage_stageName(ctx, field)
+func (ec *executionContext) _Stage_name(ctx context.Context, field graphql.CollectedField, obj *models.Stage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stage_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4913,7 +5051,7 @@ func (ec *executionContext) _Stage_stageName(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StageName, nil
+		return obj.Name, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4930,7 +5068,7 @@ func (ec *executionContext) _Stage_stageName(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stage_stageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stage_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stage",
 		Field:      field,
@@ -5269,8 +5407,8 @@ func (ec *executionContext) fieldContext_TimetableEntry_stage(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Stage_id(ctx, field)
-			case "stageName":
-				return ec.fieldContext_Stage_stageName(ctx, field)
+			case "name":
+				return ec.fieldContext_Stage_name(ctx, field)
 			case "venueID":
 				return ec.fieldContext_Stage_venueID(ctx, field)
 			}
@@ -5883,8 +6021,8 @@ func (ec *executionContext) fieldContext_Venue_stages(ctx context.Context, field
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Stage_id(ctx, field)
-			case "stageName":
-				return ec.fieldContext_Stage_stageName(ctx, field)
+			case "name":
+				return ec.fieldContext_Stage_name(ctx, field)
 			case "venueID":
 				return ec.fieldContext_Stage_venueID(ctx, field)
 			}
@@ -8060,22 +8198,22 @@ func (ec *executionContext) unmarshalInputCreateStageInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"stageName", "venueID"}
+	fieldsInOrder := [...]string{"name", "venueID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "stageName":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stageName"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.StageName = data
+			it.Name = data
 		case "venueID":
 			var err error
 
@@ -8190,7 +8328,7 @@ func (ec *executionContext) unmarshalInputCreateVenueInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "description"}
+	fieldsInOrder := [...]string{"name", "description", "stages"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8215,6 +8353,44 @@ func (ec *executionContext) unmarshalInputCreateVenueInput(ctx context.Context, 
 				return it, err
 			}
 			it.Description = data
+		case "stages":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stages"))
+			data, err := ec.unmarshalOCreateVenueStageInput2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐCreateVenueStageInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Stages = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateVenueStageInput(ctx context.Context, obj interface{}) (models.CreateVenueStageInput, error) {
+	var it models.CreateVenueStageInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -8813,6 +8989,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateVenue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateVenue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteVenue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteVenue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9222,7 +9412,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "allVenues":
+		case "getVenue":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9231,26 +9421,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_allVenues(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "venue":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_venue(ctx, field)
+				res = ec._Query_getVenue(ctx, field)
 				return res
 			}
 
@@ -9361,8 +9532,8 @@ func (ec *executionContext) _Stage(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "stageName":
-			out.Values[i] = ec._Stage_stageName(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._Stage_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10683,6 +10854,34 @@ func (ec *executionContext) unmarshalOCreateSocialMediaInput2ᚖgithubᚗcomᚋs
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOCreateVenueStageInput2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐCreateVenueStageInput(ctx context.Context, v interface{}) ([]*models.CreateVenueStageInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*models.CreateVenueStageInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOCreateVenueStageInput2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐCreateVenueStageInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOCreateVenueStageInput2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐCreateVenueStageInput(ctx context.Context, v interface{}) (*models.CreateVenueStageInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCreateVenueStageInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐEvent(ctx context.Context, sel ast.SelectionSet, v *models.Event) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -11024,53 +11223,6 @@ func (ec *executionContext) unmarshalOUpdateSocialMediaInput2ᚖgithubᚗcomᚋs
 	}
 	res, err := ec.unmarshalInputUpdateSocialMediaInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOVenue2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenueᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Venue) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNVenue2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalOVenue2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐVenue(ctx context.Context, sel ast.SelectionSet, v *models.Venue) graphql.Marshaler {

@@ -8,6 +8,11 @@ type Venue {
 input CreateVenueInput {
   name: String!
   description: String
+  stages: [CreateVenueStageInput]
+}
+
+input CreateVenueStageInput {
+  name: String!
 }
 
 type VenueConnection {
@@ -23,12 +28,11 @@ type VenueEdge {
 
 extend type Query {
   listVenues(first: Int, after: String): VenueConnection!
-  allVenues: [Venue!]
-  venue(id: ID!): Venue
-
+  getVenue(id: ID!): Venue
 }
 
 extend type Mutation {
   createVenue(input: CreateVenueInput!): Venue!
+  updateVenue(id: ID!, input: CreateVenueInput!): Venue!
+  deleteVenue(id: ID!): Venue!
 }
-

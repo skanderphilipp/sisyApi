@@ -25,7 +25,7 @@ func (r *mutationResolver) DeleteEvent(ctx context.Context, input models.DeleteE
 
 // ListEvents is the resolver for the listEvents field.
 func (r *queryResolver) ListEvents(ctx context.Context, first *int, after *string, last *int, before *string) (*models.EventConnection, error) {
-	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, first, after, r.eventRepo.FindAllUpcoming)
+	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, first, after, r.eventService.FindAllUpcoming)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
 	}
@@ -47,7 +47,7 @@ func (r *queryResolver) GetEvent(ctx context.Context, id uuid.UUID) (*models.Eve
 // GetUpcomingEventsByVenue is the resolver for the getUpcomingEventsByVenue field.
 func (r *queryResolver) GetUpcomingEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
 	limit := 50
-	events, err := r.eventRepo.FindUpcomingByVenueID(ctx, venueID)
+	events, err := r.eventService.FindUpcomingByVenueID(ctx, venueID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -65,7 +65,7 @@ func (r *queryResolver) GetUpcomingEventsByVenue(ctx context.Context, venueID uu
 // GetPastEventsByVenue is the resolver for the getPastEventsByVenue field.
 func (r *queryResolver) GetPastEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
 	limit := 50
-	events, err := r.eventRepo.FindPastEventsByVenueID(ctx, venueID)
+	events, err := r.eventService.FindPastEventsByVenueID(ctx, venueID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -87,7 +87,7 @@ func (r *queryResolver) GetAllUpcomingEvents(ctx context.Context) (*models.Event
 	}
 	limit := 100
 
-	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, &limit, nil, r.eventRepo.FindAllUpcoming)
+	events, nextCursor, limit, err := utils.FetchItemsList[models.Event](ctx, &limit, nil, r.eventService.FindAllUpcoming)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -101,7 +101,7 @@ func (r *queryResolver) GetAllUpcomingEvents(ctx context.Context) (*models.Event
 // GetTodayEvents is the resolver for the getTodayEvents field.
 func (r *queryResolver) GetTodayEvents(ctx context.Context) (*models.EventConnection, error) {
 	limit := 100
-	events, err := r.eventRepo.FindToday(ctx)
+	events, err := r.eventService.FindToday(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -119,7 +119,7 @@ func (r *queryResolver) GetTodayEvents(ctx context.Context) (*models.EventConnec
 // GetTommorowEvents is the resolver for the getTommorowEvents field.
 func (r *queryResolver) GetTommorowEvents(ctx context.Context) (*models.EventConnection, error) {
 	limit := 50
-	events, err := r.eventRepo.FindTomorrow(ctx)
+	events, err := r.eventService.FindTomorrow(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -137,7 +137,7 @@ func (r *queryResolver) GetTommorowEvents(ctx context.Context) (*models.EventCon
 // GetCurrentEvents is the resolver for the getCurrentEvents field.
 func (r *queryResolver) GetCurrentEvents(ctx context.Context) (*models.EventConnection, error) {
 	limit := 50
-	events, err := r.eventRepo.FindCurrent(ctx)
+	events, err := r.eventService.FindCurrent(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)
@@ -155,7 +155,7 @@ func (r *queryResolver) GetCurrentEvents(ctx context.Context) (*models.EventConn
 // GetEventsByVenue is the resolver for the getEventsByVenue field.
 func (r *queryResolver) GetEventsByVenue(ctx context.Context, venueID uuid.UUID) (*models.EventConnection, error) {
 	limit := 50
-	events, err := r.eventRepo.FindUpcomingByVenueID(ctx, venueID)
+	events, err := r.eventService.FindUpcomingByVenueID(ctx, venueID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching artists: %v", err)

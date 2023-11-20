@@ -1,47 +1,180 @@
 [
-    {"name": "Fabrizio Mammarella"},
-    {"name": "Freak De Philipe B2B Frenzen"},
-    {"name": "Sam Shure"},
-    {"name": "Androosh"},
-    {"name": "Flanko b2b Clap Codex"},
-    {"name": "Black Eyes"},
-    {"name": "Zehv"},
-    {"name": "Vaiana"},
-    {"name": "Max Wide"},
-    {"name": "Mehagi"},
-    {"name": "Scumdog"},
-    {"name": "Becksham"},
-    {"name": "Bahaa.AlDeen b2b Lutz Morich"},
-    {"name": "JANSN"},
-    {"name": "David Silver"},
-    {"name": "Martin Ka"},
-    {"name": "Sierra Sam"},
-    {"name": "Moog Conspiracy *live*"},
-    {"name": "Lupe"},
-    {"name": "Arvin T."},
-    {"name": "Steven Shade"},
-    {"name": "*Secret*"},
-    {"name": "Kotelett"},
-    {"name": "HGR"},
-    {"name": "Behrang Mohammadi"},
-    {"name": "Mython"},
-    {"name": "Pattn"},
-    {"name": "APRS"},
-    {"name": "Running Hot"},
-    {"name": "Juliane Wolf"},
-    {"name": "Foehn & Jerome"},
-    {"name": "Tobi Tobke"},
-    {"name": "Meat"},
-    {"name": "Daniel Kirchner"},
-    {"name": "Markus Sommer"},
-    {"name": "Georg Paul"},
-    {"name": "Willing Witness"},
-    {"name": "Juli N More"},
-    {"name": "Tom Cordes"},
-    {"name": "Dana Ruh"},
-    {"name": "Mariachi Mexico Lindo *Konzert*"},
-    {"name": "Empro"},
-    {"name": "Tapesh & XYZ Underground"},
-    {"name": "Tobias Sommer"},
-    {"name": "DJ Brikk & iligal", "soundcloudLink": "https://soundcloud.com/tonstr_studio/dj-brikk-feat-iligal-mc-babelrave"},
-    {"name": "Xepeia", "soundcloudLink": "https://soundcloud.com/xepeia"}]
+  { "name": "Fabrizio Mammarella" },
+  { "name": "Freak De Philipe B2B Frenzen" },
+  { "name": "Sam Shure" },
+  { "name": "Androosh" },
+  { "name": "Flanko b2b Clap Codex" },
+  { "name": "Black Eyes" },
+  { "name": "Zehv" },
+  { "name": "Vaiana" },
+  { "name": "Max Wide" },
+  { "name": "Mehagi" },
+  { "name": "Scumdog" },
+  { "name": "Becksham" },
+  { "name": "Bahaa.AlDeen b2b Lutz Morich" },
+  { "name": "JANSN" },
+  { "name": "David Silver" },
+  { "name": "Martin Ka" },
+  { "name": "Sierra Sam" },
+  { "name": "Moog Conspiracy *live*" },
+  { "name": "Lupe" },
+  { "name": "Arvin T." },
+  { "name": "Steven Shade" },
+  { "name": "*Secret*" },
+  { "name": "Kotelett" },
+  { "name": "HGR" },
+  { "name": "Behrang Mohammadi" },
+  { "name": "Mython" },
+  { "name": "Pattn" },
+  { "name": "APRS" },
+  { "name": "Running Hot" },
+  { "name": "Juliane Wolf" },
+  { "name": "Foehn & Jerome" },
+  { "name": "Tobi Tobke" },
+  { "name": "Meat" },
+  { "name": "Daniel Kirchner" },
+  { "name": "Markus Sommer" },
+  { "name": "Georg Paul" },
+  { "name": "Willing Witness" },
+  { "name": "Juli N More" },
+  { "name": "Tom Cordes" },
+  { "name": "Dana Ruh" },
+  { "name": "Mariachi Mexico Lindo *Konzert*" },
+  { "name": "Empro" },
+  { "name": "Tapesh & XYZ Underground" },
+  { "name": "Tobias Sommer" },
+  {
+    "name": "DJ Brikk & iligal",
+    "soundcloudLink": "https://soundcloud.com/tonstr_studio/dj-brikk-feat-iligal-mc-babelrave"
+  },
+  { "name": "Xepeia", "soundcloudLink": "https://soundcloud.com/xepeia" },
+  {
+    "name": "DJ Shannon"
+  },
+  {
+    "name": "Adaam"
+  },
+  {
+    "name": "Shir Khan"
+  },
+  {
+    "name": "Ademarr"
+  },
+  {
+    "name": "Brumann"
+  },
+  {
+    "name": "SY"
+  },
+  {
+    "name": "Norman Weber"
+  },
+  {
+    "name": "Guiamm"
+  },
+  {
+    "name": "Apoena"
+  },
+  {
+    "name": "Just Lauren"
+  },
+  {
+    "name": "Bavaresco"
+  },
+  {
+    "name": "Captain Leopard"
+  },
+  {
+    "name": "Carl Berge"
+  },
+  {
+    "name": "Batmanka"
+  },
+  {
+    "name": "Alexkid"
+  },
+  {
+    "name": "Tal Fussmann"
+  },
+  {
+    "name": "SAL"
+  },
+  {
+    "name": "Mr. Turner"
+  },
+  {
+    "name": "Jauri"
+  },
+  {
+    "name": "Brian Ring"
+  },
+  {
+    "name": "Local Suicide"
+  },
+  {
+    "name": "Alexander Kowalski"
+  },
+  {
+    "name": "Lulah Francs"
+  },
+  {
+    "name": "Philipp Fein"
+  },
+  {
+    "name": "J.Bl\u00f8feld"
+  },
+  {
+    "name": "Que Sakamoto"
+  },
+  {
+    "name": "Foolik"
+  },
+  {
+    "name": "Robot Bennett"
+  },
+  {
+    "name": "Jacques Bon"
+  },
+  {
+    "name": "Oscar Wandel"
+  },
+  {
+    "name": "Stevo"
+  },
+  {
+    "name": "Mylndr"
+  },
+  {
+    "name": "Audio Werner"
+  },
+  {
+    "name": "The Muffin Man"
+  },
+  {
+    "name": "Okain"
+  },
+  {
+    "name": "The Futures"
+  },
+  {
+    "name": "Ray Soo"
+  },
+  {
+    "name": "Cotumo"
+  },
+  {
+    "name": "Brass Riot * KONZERT *"
+  },
+  {
+    "name": "Casimir Von Oettingen"
+  },
+  {
+    "name": "Ele Luz"
+  },
+  {
+    "name": "Muten"
+  },
+  {
+    "name": "David Delgado"
+  }
+]

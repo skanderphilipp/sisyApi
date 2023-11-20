@@ -59,8 +59,8 @@ type CreateSocialMediaInput struct {
 }
 
 type CreateStageInput struct {
-	StageName string    `json:"stageName"`
-	VenueID   uuid.UUID `json:"venueID"`
+	Name    string    `json:"name"`
+	VenueID uuid.UUID `json:"venueID"`
 }
 
 type CreateTimetableEntryInput struct {
@@ -75,8 +75,13 @@ type CreateTimetableEntryInput struct {
 }
 
 type CreateVenueInput struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
+	Name        string                   `json:"name"`
+	Description *string                  `json:"description,omitempty"`
+	Stages      []*CreateVenueStageInput `json:"stages,omitempty"`
+}
+
+type CreateVenueStageInput struct {
+	Name string `json:"name"`
 }
 
 type DeleteArtistInput struct {
@@ -126,9 +131,9 @@ type SocialMedia struct {
 }
 
 type Stage struct {
-	ID        uuid.UUID `json:"id"`
-	StageName string    `json:"stageName"`
-	VenueID   uuid.UUID `json:"venueID"`
+	ID      uuid.UUID `json:"id"`
+	Name    string    `json:"name"`
+	VenueID uuid.UUID `json:"venueID"`
 }
 
 type TimeTableEntryEdge struct {
