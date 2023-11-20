@@ -150,7 +150,6 @@ func (r *queryResolver) GetCurrentEvents(ctx context.Context) (*models.EventConn
 	eventConnection := utils.BuildEventConnection(events, limit, "", cursorFunc)
 
 	return eventConnection, nil
-	panic(fmt.Errorf("not implemented: GetCurrentEvents - getCurrentEvents"))
 }
 
 // GetEventsByVenue is the resolver for the getEventsByVenue field.

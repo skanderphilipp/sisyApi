@@ -56,8 +56,9 @@ func (sc *SoundCloudClient) FetchArtistByPermalink(permalink string) (*SCArtist,
 	}
 	// Check if the token is close to expiry and refresh if necessary
 	if time.Now().After(token.AccessTokenExpiry) {
-		refreshedToken, err := RefreshAccessToken(clientID, clientSecret, token.RefreshToken)
-		if err != nil {
+
+		refreshedToken, refreshErr := RefreshAccessToken(clientID, clientSecret, token.RefreshToken)
+		if refreshErr != nil {
 			return nil, err
 		}
 
@@ -108,8 +109,8 @@ func (sc *SoundCloudClient) FetchArtistById(id string) (*SCArtist, error) {
 	}
 	// Check if the token is close to expiry and refresh if necessary
 	if time.Now().After(token.AccessTokenExpiry) {
-		refreshedToken, err := RefreshAccessToken(clientID, clientSecret, token.RefreshToken)
-		if err != nil {
+		refreshedToken, refreshErr := RefreshAccessToken(clientID, clientSecret, token.RefreshToken)
+		if refreshErr != nil {
 			return nil, err
 		}
 
