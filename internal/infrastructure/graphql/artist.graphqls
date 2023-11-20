@@ -10,6 +10,7 @@ type Artist {
   fullName: String
   username: String
   description: String
+  soundcloudPermalink: String
   soundcloudPromotedSet: String
   socialMediaLinks: [SocialMedia]
 
@@ -19,7 +20,8 @@ input CreateArtistInput {
   name: String!
   location: String
   soundcloudPromotedSet: String
-  socialMedia: [CreateSocialMediaInput] # Include social media creation within the artist input
+  soundcloudPermalink: String
+  socialMedia: [CreateSocialMediaInput]
 }
 
 input UpdateArtistInput {
@@ -27,6 +29,7 @@ input UpdateArtistInput {
   name: String
   location: String
   soundcloudPromotedSet: String
+  soundcloudPermalink: String
   socialMedia: [UpdateSocialMediaInput] # Include social media updates within the artist input
 }
 

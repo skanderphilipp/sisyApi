@@ -20,6 +20,7 @@ type Artist struct {
 	FullName              *string        `json:"fullName,omitempty"`
 	Username              *string        `json:"username,omitempty"`
 	Description           *string        `json:"description,omitempty"`
+	SoundcloudPermalink   *string        `json:"soundcloudPermalink,omitempty"`
 	SoundcloudPromotedSet *string        `json:"soundcloudPromotedSet,omitempty"`
 	SocialMediaLinks      []*SocialMedia `json:"socialMediaLinks,omitempty"`
 }
@@ -44,6 +45,7 @@ type CreateArtistInput struct {
 	Name                  string                    `json:"name"`
 	Location              *string                   `json:"location,omitempty"`
 	SoundcloudPromotedSet *string                   `json:"soundcloudPromotedSet,omitempty"`
+	SoundcloudPermalink   *string                   `json:"soundcloudPermalink,omitempty"`
 	SocialMedia           []*CreateSocialMediaInput `json:"socialMedia,omitempty"`
 }
 
@@ -165,6 +167,7 @@ type UpdateArtistInput struct {
 	Name                  *string                   `json:"name,omitempty"`
 	Location              *string                   `json:"location,omitempty"`
 	SoundcloudPromotedSet *string                   `json:"soundcloudPromotedSet,omitempty"`
+	SoundcloudPermalink   *string                   `json:"soundcloudPermalink,omitempty"`
 	SocialMedia           []*UpdateSocialMediaInput `json:"socialMedia,omitempty"`
 }
 

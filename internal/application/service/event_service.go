@@ -18,12 +18,22 @@ func NewEventService(repo *repository.EventRepository) *EventService {
 }
 
 func mapGormEventToGqlEvent(gormEvent *event.Event) *models.Event {
+	if gormEvent == nil {
+		return nil // or handle it according to your application's needs
+	}
+
 	gqlEvent := &models.Event{
 		ID:        gormEvent.ID,
 		StartDate: gormEvent.StartDate,
 		EndDate:   gormEvent.EndDate,
-		Venue:     mapGormVenueToGqlVenue(gormEvent.Venue),
-		Timetable: mapGormTimetableEntriesToGql(gormEvent.Timetable),
+	}
+
+	if gormEvent.Venue != nil {
+		gqlEvent.Venue = mapGormVenueToGqlVenue(gormEvent.Venue)
+	}
+
+	if gormEvent.Timetable != nil {
+		gqlEvent.Timetable = mapGormTimetableEntriesToGql(gormEvent.Timetable)
 	}
 
 	return gqlEvent
@@ -76,6 +86,19 @@ func mapGqlTimetableEntriesToGorm(gqlEntries []*models.TimetableEntry) []*event.
 	return gormEntries
 }
 
+func (s *EventService) FindAllByVenueID(ctx context.Context, venueId uuid.UUID) ([]*models.Event, error) {
+	gormEvents, err := s.repo.FindAllByVenueID(ctx, venueId)
+	if err != nil {
+		return nil, err
+	}
+
+	var gqlEvents []*models.Event
+	for _, event := range gormEvents {
+		gqlEvents = append(gqlEvents, mapGormEventToGqlEvent(event))
+	}
+
+	return gqlEvents, nil
+}
 func (s *EventService) FindUpcomingByVenueID(ctx context.Context, venueID uuid.UUID) ([]*models.Event, error) {
 	gormEvents, err := s.repo.FindUpcomingByVenueID(ctx, venueID)
 	if err != nil {

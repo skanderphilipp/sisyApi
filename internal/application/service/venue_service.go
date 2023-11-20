@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
 	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
 	"github.com/skanderphilipp/sisyApi/internal/infrastructure/repository"
 )
@@ -85,17 +86,40 @@ func (s *VenueService) Delete(ctx context.Context, id uuid.UUID) (bool, error) {
 
 func mapGormVenueToGqlVenue(gormVenue *venue.Venue) *models.Venue {
 	gqlVenue := &models.Venue{
-		ID:   gormVenue.ID,
-		Name: gormVenue.Name,
+		ID:          gormVenue.ID,
+		Name:        gormVenue.Name,
+		Description: gormVenue.Description,
 	}
-
+	// Check if there are stages to map
+	if len(gormVenue.Stages) > 0 {
+		for _, stageData := range gormVenue.Stages {
+			// Assuming that models.Stage and venue.Stage have similar fields
+			gqlStage := &models.Stage{
+				ID:   stageData.ID,
+				Name: stageData.StageName,
+			}
+			gqlVenue.Stages = append(gqlVenue.Stages, gqlStage)
+		}
+	}
 	return gqlVenue
 }
 
 func mapGqlVenueToGormVenue(gqlVenue *models.Venue) *venue.Venue {
 	gormVenue := &venue.Venue{
-		ID:   gqlVenue.ID,
-		Name: gqlVenue.Name,
+		ID:          gqlVenue.ID,
+		Name:        gqlVenue.Name,
+		Description: gqlVenue.Description,
+	}
+
+	// Check if there are stages to map
+	if len(gqlVenue.Stages) > 0 {
+		for _, stageData := range gqlVenue.Stages {
+			// Assuming that models.Stage and venue.Stage have similar fields
+			gormStage := &stage.Stage{
+				StageName: stageData.Name,
+			}
+			gormVenue.Stages = append(gormVenue.Stages, gormStage)
+		}
 	}
 
 	return gormVenue

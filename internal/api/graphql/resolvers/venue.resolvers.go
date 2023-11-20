@@ -19,17 +19,17 @@ func (r *mutationResolver) CreateVenue(ctx context.Context, input models.CreateV
 		Description: input.Description,
 	}
 
-	if(input.Stages != nil) {
+	if input.Stages != nil {
 		var stages []*models.Stage
 		for _, stageInput := range input.Stages {
-    // Assuming that models.CreateVenueStageInput and models.Stage have similar fields
-    stage := &models.Stage{
-			 Name: stageInput.Name,
-			 Description: stageInput.Description,
-    }
-    stages = append(stages, stage)
-		newVenue.Stages = stages
-}
+			// Assuming that models.CreateVenueStageInput and models.Stage have similar fields
+			stage := &models.Stage{
+				Name: stageInput.Name,
+			}
+			stages = append(stages, stage)
+			newVenue.Stages = stages
+		}
+	}
 
 	// Call the repository function to create the artist
 	createdVenue, err := r.venueService.Save(ctx, &newVenue)

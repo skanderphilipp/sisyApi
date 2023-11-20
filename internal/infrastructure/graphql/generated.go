@@ -61,6 +61,7 @@ type ComplexityRoot struct {
 		Location              func(childComplexity int) int
 		Name                  func(childComplexity int) int
 		SocialMediaLinks      func(childComplexity int) int
+		SoundcloudPermalink   func(childComplexity int) int
 		SoundcloudPromotedSet func(childComplexity int) int
 		Username              func(childComplexity int) int
 	}
@@ -317,6 +318,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Artist.SocialMediaLinks(childComplexity), true
+
+	case "Artist.soundcloudPermalink":
+		if e.complexity.Artist.SoundcloudPermalink == nil {
+			break
+		}
+
+		return e.complexity.Artist.SoundcloudPermalink(childComplexity), true
 
 	case "Artist.soundcloudPromotedSet":
 		if e.complexity.Artist.SoundcloudPromotedSet == nil {
@@ -2056,6 +2064,47 @@ func (ec *executionContext) fieldContext_Artist_description(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Artist_soundcloudPermalink(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SoundcloudPermalink, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_soundcloudPermalink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Artist_soundcloudPromotedSet(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 	if err != nil {
@@ -2300,6 +2349,8 @@ func (ec *executionContext) fieldContext_ArtistEdge_node(ctx context.Context, fi
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -2852,6 +2903,8 @@ func (ec *executionContext) fieldContext_Mutation_createArtist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -2935,6 +2988,8 @@ func (ec *executionContext) fieldContext_Mutation_updateArtist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -3666,6 +3721,8 @@ func (ec *executionContext) fieldContext_Query_getArtist(ctx context.Context, fi
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -3804,6 +3861,8 @@ func (ec *executionContext) fieldContext_Query_getArtistByName(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -5520,6 +5579,8 @@ func (ec *executionContext) fieldContext_TimetableEntry_artist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
 				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
 			case "socialMediaLinks":
@@ -8057,7 +8118,7 @@ func (ec *executionContext) unmarshalInputCreateArtistInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "location", "soundcloudPromotedSet", "socialMedia"}
+	fieldsInOrder := [...]string{"name", "location", "soundcloudPromotedSet", "soundcloudPermalink", "socialMedia"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8091,6 +8152,15 @@ func (ec *executionContext) unmarshalInputCreateArtistInput(ctx context.Context,
 				return it, err
 			}
 			it.SoundcloudPromotedSet = data
+		case "soundcloudPermalink":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudPermalink"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SoundcloudPermalink = data
 		case "socialMedia":
 			var err error
 
@@ -8520,7 +8590,7 @@ func (ec *executionContext) unmarshalInputUpdateArtistInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "location", "soundcloudPromotedSet", "socialMedia"}
+	fieldsInOrder := [...]string{"id", "name", "location", "soundcloudPromotedSet", "soundcloudPermalink", "socialMedia"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8563,6 +8633,15 @@ func (ec *executionContext) unmarshalInputUpdateArtistInput(ctx context.Context,
 				return it, err
 			}
 			it.SoundcloudPromotedSet = data
+		case "soundcloudPermalink":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("soundcloudPermalink"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SoundcloudPermalink = data
 		case "socialMedia":
 			var err error
 
@@ -8672,6 +8751,8 @@ func (ec *executionContext) _Artist(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Artist_username(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Artist_description(ctx, field, obj)
+		case "soundcloudPermalink":
+			out.Values[i] = ec._Artist_soundcloudPermalink(ctx, field, obj)
 		case "soundcloudPromotedSet":
 			out.Values[i] = ec._Artist_soundcloudPromotedSet(ctx, field, obj)
 		case "socialMediaLinks":

@@ -1,6 +1,7 @@
 package seed
 
 import (
+	"errors"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -25,15 +26,24 @@ func SeedDatabase(db *gorm.DB) error {
 	var artists []artist.Artist
 	var err error
 
-	if venues, err = seedVenues(tx, 2); err != nil {
+	// Pull existing venues, stages, and artists from the database
+	if err = tx.Find(&venues).Error; err != nil {
+		return err
+	}
+	if err = tx.Find(&stages).Error; err != nil {
+		return err
+	}
+	if err = tx.Find(&artists).Error; err != nil {
 		return err
 	}
 
-	if stages, err = seedStages(tx, venues, 20); err != nil {
-		return err
+	// Check if there are enough venues, stages, and artists to seed events and timetable entries
+	if len(venues) == 0 || len(stages) == 0 || len(artists) == 0 {
+		return errors.New("not enough venues, stages, or artists to seed events and timetable entries")
 	}
 
-	if err = seedEventsAndTimetableEntries(tx, venues, stages, artists, 20, 20); err != nil {
+	// Seed events and timetable entries
+	if err = seedEventsAndTimetableEntries(tx, venues, stages, artists, 30, 20); err != nil {
 		return err
 	}
 

@@ -22,3 +22,12 @@ func mapGormStageToGqlStage(gormStage *stage.Stage) *models.Stage {
 
 	return gqlStage
 }
+
+func mapGqlStageToGormStage(gqlStage *models.Stage) *stage.Stage {
+	gormStage := &stage.Stage{
+		ID:        gqlStage.ID,
+		StageName: gqlStage.Name,
+	}
+
+	return gormStage
+}
