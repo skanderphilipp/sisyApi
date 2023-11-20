@@ -15,8 +15,21 @@ import (
 // CreateVenue is the resolver for the createVenue field.
 func (r *mutationResolver) CreateVenue(ctx context.Context, input models.CreateVenueInput) (*models.Venue, error) {
 	newVenue := models.Venue{
-		Name: input.Name,
+		Name:        input.Name,
+		Description: input.Description,
 	}
+
+	if(input.Stages != nil) {
+		var stages []*models.Stage
+		for _, stageInput := range input.Stages {
+    // Assuming that models.CreateVenueStageInput and models.Stage have similar fields
+    stage := &models.Stage{
+			 Name: stageInput.Name,
+			 Description: stageInput.Description,
+    }
+    stages = append(stages, stage)
+		newVenue.Stages = stages
+}
 
 	// Call the repository function to create the artist
 	createdVenue, err := r.venueService.Save(ctx, &newVenue)
