@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -59,7 +60,11 @@ func RequestAccessToken() (*AccessTokenResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(resp.Body)
 
 	var tokenResponse AccessTokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
@@ -89,7 +94,11 @@ func RefreshAccessToken(clientID, clientSecret, refreshToken string) (*AccessTok
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(resp.Body)
 
 	var tokenResponse AccessTokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {

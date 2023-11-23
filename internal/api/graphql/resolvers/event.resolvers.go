@@ -8,9 +8,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/blnto/blnto_service/internal/domain/models"
+	"github.com/blnto/blnto_service/internal/utils"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
-	"github.com/skanderphilipp/sisyApi/internal/utils"
 )
 
 // CreateEvent is the resolver for the createEvent field.

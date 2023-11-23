@@ -16,7 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/blnto/blnto_service/internal/domain/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -61,6 +61,7 @@ type ComplexityRoot struct {
 		Location              func(childComplexity int) int
 		Name                  func(childComplexity int) int
 		SocialMediaLinks      func(childComplexity int) int
+		SoundcloudID          func(childComplexity int) int
 		SoundcloudPermalink   func(childComplexity int) int
 		SoundcloudPromotedSet func(childComplexity int) int
 		Username              func(childComplexity int) int
@@ -120,6 +121,7 @@ type ComplexityRoot struct {
 		GetCurrentEvents             func(childComplexity int) int
 		GetEvent                     func(childComplexity int, id uuid.UUID) int
 		GetEventsByVenue             func(childComplexity int, venueID uuid.UUID) int
+		GetFeaturedArtists           func(childComplexity int) int
 		GetPastEventsByVenue         func(childComplexity int, venueID uuid.UUID) int
 		GetTimetableEntriesByEventID func(childComplexity int, eventID uuid.UUID) int
 		GetTodayEvents               func(childComplexity int) int
@@ -205,6 +207,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	GetArtist(ctx context.Context, id uuid.UUID) (*models.Artist, error)
 	SearchArtists(ctx context.Context, criteria models.ArtistSearchInput) (*models.ArtistConnection, error)
+	GetFeaturedArtists(ctx context.Context) ([]*models.Artist, error)
 	GetArtistByName(ctx context.Context, name string) (*models.Artist, error)
 	ListArtists(ctx context.Context, first *int, after *string) (*models.ArtistConnection, error)
 	ListEvents(ctx context.Context, first *int, after *string, last *int, before *string) (*models.EventConnection, error)
@@ -318,6 +321,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Artist.SocialMediaLinks(childComplexity), true
+
+	case "Artist.soundcloudId":
+		if e.complexity.Artist.SoundcloudID == nil {
+			break
+		}
+
+		return e.complexity.Artist.SoundcloudID(childComplexity), true
 
 	case "Artist.soundcloudPermalink":
 		if e.complexity.Artist.SoundcloudPermalink == nil {
@@ -638,6 +648,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetEventsByVenue(childComplexity, args["venueID"].(uuid.UUID)), true
+
+	case "Query.getFeaturedArtists":
+		if e.complexity.Query.GetFeaturedArtists == nil {
+			break
+		}
+
+		return e.complexity.Query.GetFeaturedArtists(childComplexity), true
 
 	case "Query.getPastEventsByVenue":
 		if e.complexity.Query.GetPastEventsByVenue == nil {
@@ -2064,6 +2081,47 @@ func (ec *executionContext) fieldContext_Artist_description(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Artist_soundcloudId(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Artist_soundcloudId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SoundcloudID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Artist_soundcloudId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Artist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Artist_soundcloudPermalink(ctx context.Context, field graphql.CollectedField, obj *models.Artist) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 	if err != nil {
@@ -2349,6 +2407,8 @@ func (ec *executionContext) fieldContext_ArtistEdge_node(ctx context.Context, fi
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -2903,6 +2963,8 @@ func (ec *executionContext) fieldContext_Mutation_createArtist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -2988,6 +3050,8 @@ func (ec *executionContext) fieldContext_Mutation_updateArtist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -3721,6 +3785,8 @@ func (ec *executionContext) fieldContext_Query_getArtist(ctx context.Context, fi
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -3803,6 +3869,79 @@ func (ec *executionContext) fieldContext_Query_searchArtists(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getFeaturedArtists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFeaturedArtists(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFeaturedArtists(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Artist)
+	fc.Result = res
+	return ec.marshalOArtist2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐArtist(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFeaturedArtists(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Artist_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Artist_name(ctx, field)
+			case "location":
+				return ec.fieldContext_Artist_location(ctx, field)
+			case "city":
+				return ec.fieldContext_Artist_city(ctx, field)
+			case "country":
+				return ec.fieldContext_Artist_country(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Artist_avatarUrl(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Artist_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Artist_lastName(ctx, field)
+			case "fullName":
+				return ec.fieldContext_Artist_fullName(ctx, field)
+			case "username":
+				return ec.fieldContext_Artist_username(ctx, field)
+			case "description":
+				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
+			case "soundcloudPermalink":
+				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
+			case "soundcloudPromotedSet":
+				return ec.fieldContext_Artist_soundcloudPromotedSet(ctx, field)
+			case "socialMediaLinks":
+				return ec.fieldContext_Artist_socialMediaLinks(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Artist", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getArtistByName(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getArtistByName(ctx, field)
 	if err != nil {
@@ -3861,6 +4000,8 @@ func (ec *executionContext) fieldContext_Query_getArtistByName(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -4946,9 +5087,9 @@ func (ec *executionContext) _SocialMedia_platform(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(models.SocialMediaPlatform)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNSocialMediaPlatform2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SocialMedia_platform(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4958,7 +5099,7 @@ func (ec *executionContext) fieldContext_SocialMedia_platform(ctx context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type SocialMediaPlatform does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5579,6 +5720,8 @@ func (ec *executionContext) fieldContext_TimetableEntry_artist(ctx context.Conte
 				return ec.fieldContext_Artist_username(ctx, field)
 			case "description":
 				return ec.fieldContext_Artist_description(ctx, field)
+			case "soundcloudId":
+				return ec.fieldContext_Artist_soundcloudId(ctx, field)
 			case "soundcloudPermalink":
 				return ec.fieldContext_Artist_soundcloudPermalink(ctx, field)
 			case "soundcloudPromotedSet":
@@ -8241,7 +8384,7 @@ func (ec *executionContext) unmarshalInputCreateSocialMediaInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platform"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNSocialMediaPlatform2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8684,7 +8827,7 @@ func (ec *executionContext) unmarshalInputUpdateSocialMediaInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platform"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOSocialMediaPlatform2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8751,6 +8894,8 @@ func (ec *executionContext) _Artist(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Artist_username(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Artist_description(ctx, field, obj)
+		case "soundcloudId":
+			out.Values[i] = ec._Artist_soundcloudId(ctx, field, obj)
 		case "soundcloudPermalink":
 			out.Values[i] = ec._Artist_soundcloudPermalink(ctx, field, obj)
 		case "soundcloudPromotedSet":
@@ -9193,6 +9338,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_searchArtists(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getFeaturedArtists":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getFeaturedArtists(ctx, field)
 				return res
 			}
 
@@ -10377,6 +10541,16 @@ func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋskanderphilippᚋ
 	return ec._PageInfo(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNSocialMediaPlatform2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx context.Context, v interface{}) (models.SocialMediaPlatform, error) {
+	var res models.SocialMediaPlatform
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSocialMediaPlatform2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx context.Context, sel ast.SelectionSet, v models.SocialMediaPlatform) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNStage2githubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStage(ctx context.Context, sel ast.SelectionSet, v models.Stage) graphql.Marshaler {
 	return ec._Stage(ctx, sel, &v)
 }
@@ -10819,6 +10993,47 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOArtist2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐArtist(ctx context.Context, sel ast.SelectionSet, v []*models.Artist) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOArtist2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐArtist(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOArtist2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐArtist(ctx context.Context, sel ast.SelectionSet, v *models.Artist) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -11094,6 +11309,22 @@ func (ec *executionContext) marshalOSocialMedia2ᚖgithubᚗcomᚋskanderphilipp
 		return graphql.Null
 	}
 	return ec._SocialMedia(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSocialMediaPlatform2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx context.Context, v interface{}) (*models.SocialMediaPlatform, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(models.SocialMediaPlatform)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSocialMediaPlatform2ᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐSocialMediaPlatform(ctx context.Context, sel ast.SelectionSet, v *models.SocialMediaPlatform) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOStage2ᚕᚖgithubᚗcomᚋskanderphilippᚋsisyApiᚋinternalᚋdomainᚋmodelsᚐStage(ctx context.Context, sel ast.SelectionSet, v []*models.Stage) graphql.Marshaler {

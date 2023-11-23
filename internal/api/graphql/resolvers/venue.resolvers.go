@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/blnto/blnto_service/internal/domain/models"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
 )
 
 // CreateVenue is the resolver for the createVenue field.

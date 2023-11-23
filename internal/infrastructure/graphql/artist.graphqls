@@ -10,6 +10,7 @@ type Artist {
   fullName: String
   username: String
   description: String
+  soundcloudId: Int
   soundcloudPermalink: String
   soundcloudPromotedSet: String
   socialMediaLinks: [SocialMedia]
@@ -55,19 +56,28 @@ type ArtistEdge {
 
 type SocialMedia {
   id: ID!
-  platform: String!
+  platform: SocialMediaPlatform!
   link: String!
   artistId: ID! # Include the artistId field
 }
 
+enum SocialMediaPlatform {
+  Twitter
+  Facebook
+  Instagram
+  YouTube
+  Soundcloud
+  ResidentAdvisor
+}
+
 input CreateSocialMediaInput {
-  platform: String!
+  platform: SocialMediaPlatform!
   link: String!
 }
 
 input UpdateSocialMediaInput {
   id: ID!
-  platform: String
+  platform: SocialMediaPlatform
   link: String
 }
 
@@ -78,6 +88,7 @@ input DeleteSocialMediaInput {
 type Query {
   getArtist(id: ID!): Artist
   searchArtists(criteria: ArtistSearchInput!): ArtistConnection
+  getFeaturedArtists: [Artist]
   getArtistByName(name: String!): Artist
   listArtists(first: Int, after: String): ArtistConnection
 }

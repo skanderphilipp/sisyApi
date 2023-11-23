@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/blnto/blnto_service/internal/domain/event"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/event"
 	"gorm.io/gorm"
 )
 

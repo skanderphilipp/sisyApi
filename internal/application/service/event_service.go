@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
+	"github.com/blnto/blnto_service/internal/domain/event"
+	"github.com/blnto/blnto_service/internal/domain/models"
+	"github.com/blnto/blnto_service/internal/infrastructure/repository"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/event"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
-	"github.com/skanderphilipp/sisyApi/internal/infrastructure/repository"
 )
 
 type EventService struct {
@@ -93,8 +93,8 @@ func (s *EventService) FindAllByVenueID(ctx context.Context, venueId uuid.UUID) 
 	}
 
 	var gqlEvents []*models.Event
-	for _, event := range gormEvents {
-		gqlEvents = append(gqlEvents, mapGormEventToGqlEvent(event))
+	for _, eventData := range gormEvents {
+		gqlEvents = append(gqlEvents, mapGormEventToGqlEvent(eventData))
 	}
 
 	return gqlEvents, nil
@@ -106,8 +106,8 @@ func (s *EventService) FindUpcomingByVenueID(ctx context.Context, venueID uuid.U
 	}
 
 	var gqlEvents []*models.Event
-	for _, event := range gormEvents {
-		gqlEvents = append(gqlEvents, mapGormEventToGqlEvent(event))
+	for _, eventData := range gormEvents {
+		gqlEvents = append(gqlEvents, mapGormEventToGqlEvent(eventData))
 	}
 
 	return gqlEvents, nil
@@ -119,8 +119,8 @@ func (s *EventService) FindPastEventsByVenueID(ctx context.Context, venueID uuid
 		return nil, err
 	}
 	var result []*models.Event
-	for _, event := range events {
-		result = append(result, mapGormEventToGqlEvent(event))
+	for _, eventData := range events {
+		result = append(result, mapGormEventToGqlEvent(eventData))
 	}
 
 	return result, err
@@ -132,8 +132,8 @@ func (s *EventService) FindAllUpcoming(ctx context.Context, cursor string, limit
 		return nil, "", err
 	}
 	var result []*models.Event
-	for _, event := range events {
-		result = append(result, mapGormEventToGqlEvent(event))
+	for _, eventData := range events {
+		result = append(result, mapGormEventToGqlEvent(eventData))
 	}
 
 	return result, nextCursor, nil
@@ -145,8 +145,8 @@ func (s *EventService) FindToday(ctx context.Context) ([]*models.Event, error) {
 		return nil, err
 	}
 	var result []*models.Event
-	for _, event := range events {
-		result = append(result, mapGormEventToGqlEvent(event))
+	for _, eventData := range events {
+		result = append(result, mapGormEventToGqlEvent(eventData))
 	}
 	return result, nil
 }
@@ -157,8 +157,8 @@ func (s *EventService) FindTomorrow(ctx context.Context) ([]*models.Event, error
 		return nil, err
 	}
 	var result []*models.Event
-	for _, event := range events {
-		result = append(result, mapGormEventToGqlEvent(event))
+	for _, eventData := range events {
+		result = append(result, mapGormEventToGqlEvent(eventData))
 	}
 	return result, nil
 }
@@ -169,8 +169,8 @@ func (s *EventService) FindCurrent(ctx context.Context) ([]*models.Event, error)
 		return nil, err
 	}
 	var result []*models.Event
-	for _, event := range events {
-		result = append(result, mapGormEventToGqlEvent(event))
+	for _, eventData := range events {
+		result = append(result, mapGormEventToGqlEvent(eventData))
 	}
 	return result, nil
 }

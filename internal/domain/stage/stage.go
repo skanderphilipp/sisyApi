@@ -17,7 +17,7 @@ type Stage struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
-// Stage BeforeCreate hook
+// BeforeCreate Stage BeforeCreate hook
 func (s *Stage) BeforeCreate(tx *gorm.DB) (err error) {
 	if s.ID == uuid.Nil {
 		s.ID = uuid.New()

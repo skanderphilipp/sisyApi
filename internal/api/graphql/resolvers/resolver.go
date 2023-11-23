@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/skanderphilipp/sisyApi/internal/application/service"
+	"github.com/blnto/blnto_service/internal/application/service"
 )
 
 // This file will not be regenerated automatically.

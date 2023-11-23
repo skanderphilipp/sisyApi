@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
-	"github.com/skanderphilipp/sisyApi/internal/domain/event"
-	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
-	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
-	"github.com/skanderphilipp/sisyApi/internal/infrastructure/api/artistApi"
+	"github.com/blnto/blnto_service/internal/domain/artist"
+	"github.com/blnto/blnto_service/internal/domain/event"
+	"github.com/blnto/blnto_service/internal/domain/stage"
+	"github.com/blnto/blnto_service/internal/domain/venue"
+	"github.com/blnto/blnto_service/internal/infrastructure/api/artistApi"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -32,7 +32,7 @@ func ProvideDatabase() (*gorm.DB, error) {
 
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
-	err = db.AutoMigrate(&artist.Artist{}, &artist.SocialMedia{}, &venue.Venue{}, &stage.Stage{}, &event.Event{}, &event.TimetableEntry{}, &artistApi.OAuthToken{})
+	err = db.AutoMigrate(&artist.Artist{}, &artist.SocialMediaLink{}, &venue.Venue{}, &stage.Stage{}, &event.Event{}, &event.TimetableEntry{}, &artistApi.OAuthToken{})
 
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
@@ -41,7 +41,7 @@ func ProvideDatabase() (*gorm.DB, error) {
 	return db, nil
 }
 
-// Ensure you call this function from somewhere in your application, typically main.go
+// CloseDatabaseConnection Ensure you call this function from somewhere in your application, typically main.go
 func CloseDatabaseConnection(db *gorm.DB) {
 	sqlDB, err := db.DB()
 	if err != nil {

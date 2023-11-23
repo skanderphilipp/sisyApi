@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/blnto/blnto_service/internal/domain/artist"
+	"github.com/blnto/blnto_service/internal/domain/stage"
+	"github.com/blnto/blnto_service/internal/domain/venue"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
-	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
-	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
 	"gorm.io/gorm"
 )
 
@@ -57,7 +57,7 @@ func (e *Event) validateTimetableEntry(entry *TimetableEntry) error {
 
 // Gorm Hooks
 
-// Event BeforeCreate hook
+// BeforeCreate Event hook
 func (e *Event) BeforeCreate(tx *gorm.DB) (err error) {
 	if e.ID == uuid.Nil {
 		e.ID = uuid.New()

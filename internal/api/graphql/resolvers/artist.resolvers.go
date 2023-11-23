@@ -8,10 +8,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/blnto/blnto_service/internal/domain/models"
+	graphql1 "github.com/blnto/blnto_service/internal/infrastructure/graphql"
+	"github.com/blnto/blnto_service/internal/utils"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
-	graphql1 "github.com/skanderphilipp/sisyApi/internal/infrastructure/graphql"
-	"github.com/skanderphilipp/sisyApi/internal/utils"
 )
 
 // CreateArtist is the resolver for the createArtist field.
@@ -20,9 +20,21 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input models.Create
 		Name:                  input.Name,
 		Location:              input.Location,
 		SoundcloudPromotedSet: input.SoundcloudPromotedSet,
+		SoundcloudPermalink:   input.SoundcloudPermalink,
 	}
 
-	// Call the repository function to create the artist
+	if input.SocialMedia != nil {
+		var socialMediaLinks []*models.SocialMedia
+		for _, stageInput := range input.SocialMedia {
+			socialMediaLink := &models.SocialMedia{
+				Platform: stageInput.Platform,
+				Link:     stageInput.Link,
+			}
+			socialMediaLinks = append(socialMediaLinks, socialMediaLink)
+		}
+		newArtist.SocialMediaLinks = socialMediaLinks
+	}
+
 	createdArtist, err := r.artistService.Save(ctx, &newArtist)
 	if err != nil {
 		return nil, err
@@ -33,7 +45,35 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input models.Create
 
 // UpdateArtist is the resolver for the updateArtist field.
 func (r *mutationResolver) UpdateArtist(ctx context.Context, input models.UpdateArtistInput) (*models.Artist, error) {
-	panic(fmt.Errorf("not implemented: UpdateArtist - updateArtist"))
+	newArtist := models.Artist{
+		ID:                    input.ID,
+		Name:                  *input.Name,
+		Location:              input.Location,
+		SoundcloudPromotedSet: input.SoundcloudPromotedSet,
+		SoundcloudPermalink:   input.SoundcloudPermalink,
+	}
+
+	if input.SocialMedia != nil {
+		var socialMediaLinks []*models.SocialMedia
+		for _, socialMediaInput := range input.SocialMedia {
+			// Assuming that models.CreateVenueStageInput and models.Stage have similar fields
+			socialMediaLink := &models.SocialMedia{
+				ID:       socialMediaInput.ID,
+				Platform: *socialMediaInput.Platform,
+				Link:     *socialMediaInput.Link,
+			}
+			socialMediaLinks = append(socialMediaLinks, socialMediaLink)
+			newArtist.SocialMediaLinks = socialMediaLinks
+		}
+	}
+
+	// Call the repository function to create the artist
+	createdArtist, err := r.artistService.Update(ctx, &newArtist)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdArtist, nil
 }
 
 // DeleteArtist is the resolver for the deleteArtist field.
@@ -93,6 +133,16 @@ func (r *queryResolver) SearchArtists(ctx context.Context, criteria models.Artis
 	}
 
 	return artistConnection, nil
+}
+
+// GetFeaturedArtists is the resolver for the getFeaturedArtists field.
+func (r *queryResolver) GetFeaturedArtists(ctx context.Context) ([]*models.Artist, error) {
+	artist, err := r.artistService.FindFeatured(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching featured artists: %v", err)
+	}
+
+	return artist, nil
 }
 
 // GetArtistByName is the resolver for the getArtistByName field.

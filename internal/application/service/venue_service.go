@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/blnto/blnto_service/internal/domain/models"
+	"github.com/blnto/blnto_service/internal/domain/stage"
+	"github.com/blnto/blnto_service/internal/domain/venue"
+	"github.com/blnto/blnto_service/internal/infrastructure/repository"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
-	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
-	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
-	"github.com/skanderphilipp/sisyApi/internal/infrastructure/repository"
 )
 
 type VenueService struct {

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/sisyApi.iml" filepath="$PROJECT_DIR$/.idea/sisyApi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../blnto_service/.idea/blnto_service.iml" filepath="$PROJECT_DIR$/../blnto_service/.idea/blnto_service.iml" />
     </modules>
   </component>
 </project>

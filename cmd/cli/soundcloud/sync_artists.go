@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/blnto/blnto_service/internal"
+	"github.com/blnto/blnto_service/internal/infrastructure/api/artistApi"
 	"github.com/joho/godotenv"
-	"github.com/skanderphilipp/sisyApi/internal"
-	"github.com/skanderphilipp/sisyApi/internal/infrastructure/api/artistApi"
 )
 
 func main() {

@@ -3,6 +3,7 @@ package artistApi
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -22,7 +23,7 @@ type SoundCloudClient struct {
 	clientSecret string
 }
 
-// Artist represents the artist data structure for SoundCloud
+// SCArtist Artist represents the artist data structure for SoundCloud
 type SCArtist struct {
 	ID          int    `json:"id"`
 	City        string `json:"city"`
@@ -88,7 +89,11 @@ func (sc *SoundCloudClient) FetchArtistByPermalink(permalink string) (*SCArtist,
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(resp.Body)
 
 	// Decode the response
 	var artist SCArtist
@@ -140,7 +145,11 @@ func (sc *SoundCloudClient) FetchArtistById(id string) (*SCArtist, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(resp.Body)
 
 	// Decode the response
 	var artist SCArtist

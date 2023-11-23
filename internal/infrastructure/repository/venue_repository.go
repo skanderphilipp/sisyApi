@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/blnto/blnto_service/internal/domain/venue"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
 	"gorm.io/gorm"
 )
 
@@ -17,12 +17,12 @@ func NewVenueRepository(db *gorm.DB) *VenueRepository {
 	return &VenueRepository{db: db}
 }
 
-func (repo *VenueRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]venue.Venue, string, error) {
+func (r *VenueRepository) FindAllByCursor(ctx context.Context, cursor string, limit int) ([]venue.Venue, string, error) {
 	var venues []venue.Venue
 	var nextCursor string
 
 	// Assuming ID is used as the cursor
-	query := repo.db.WithContext(ctx).Order("id ASC")
+	query := r.db.WithContext(ctx).Order("id ASC")
 
 	if cursor != "" {
 		query = query.Where("id > ?", cursor)

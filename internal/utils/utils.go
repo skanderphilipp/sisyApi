@@ -3,8 +3,10 @@ package utils
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 
-	"github.com/skanderphilipp/sisyApi/internal/domain/models"
+	"github.com/blnto/blnto_service/internal/domain/models"
 )
 
 type Pagination struct {
@@ -58,4 +60,16 @@ func BuildEventConnection(events []*models.Event, limit int, nextCursor string, 
 			HasNextPage: &hasNextPage,
 		},
 	}
+}
+
+func IsValidURL(toTest string) bool {
+	// This is a simple check. For more complex validation, you might want to use regex.
+	u, err := url.ParseRequestURI(toTest)
+	if err != nil {
+		return false
+	}
+
+	// Ensure the scheme is http or https
+	scheme := strings.ToLower(u.Scheme)
+	return scheme == "http" || scheme == "https"
 }

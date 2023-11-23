@@ -8,9 +8,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/blnto/blnto_service/internal"
+	"github.com/blnto/blnto_service/internal/domain/artist"
 	"github.com/joho/godotenv"
-	"github.com/skanderphilipp/sisyApi/internal"
-	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
 	"gorm.io/gorm"
 )
 

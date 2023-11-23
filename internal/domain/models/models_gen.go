@@ -3,6 +3,9 @@
 package models
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +23,7 @@ type Artist struct {
 	FullName              *string        `json:"fullName,omitempty"`
 	Username              *string        `json:"username,omitempty"`
 	Description           *string        `json:"description,omitempty"`
+	SoundcloudID          *int           `json:"soundcloudId,omitempty"`
 	SoundcloudPermalink   *string        `json:"soundcloudPermalink,omitempty"`
 	SoundcloudPromotedSet *string        `json:"soundcloudPromotedSet,omitempty"`
 	SocialMediaLinks      []*SocialMedia `json:"socialMediaLinks,omitempty"`
@@ -56,8 +60,8 @@ type CreateEventInput struct {
 }
 
 type CreateSocialMediaInput struct {
-	Platform string `json:"platform"`
-	Link     string `json:"link"`
+	Platform SocialMediaPlatform `json:"platform"`
+	Link     string              `json:"link"`
 }
 
 type CreateStageInput struct {
@@ -126,10 +130,10 @@ type PageInfo struct {
 }
 
 type SocialMedia struct {
-	ID       uuid.UUID `json:"id"`
-	Platform string    `json:"platform"`
-	Link     string    `json:"link"`
-	ArtistID uuid.UUID `json:"artistId"`
+	ID       uuid.UUID           `json:"id"`
+	Platform SocialMediaPlatform `json:"platform"`
+	Link     string              `json:"link"`
+	ArtistID uuid.UUID           `json:"artistId"`
 }
 
 type Stage struct {
@@ -172,9 +176,9 @@ type UpdateArtistInput struct {
 }
 
 type UpdateSocialMediaInput struct {
-	ID       uuid.UUID `json:"id"`
-	Platform *string   `json:"platform,omitempty"`
-	Link     *string   `json:"link,omitempty"`
+	ID       uuid.UUID            `json:"id"`
+	Platform *SocialMediaPlatform `json:"platform,omitempty"`
+	Link     *string              `json:"link,omitempty"`
 }
 
 type Venue struct {
@@ -192,4 +196,53 @@ type VenueConnection struct {
 type VenueEdge struct {
 	Node   *Venue `json:"node"`
 	Cursor string `json:"cursor"`
+}
+
+type SocialMediaPlatform string
+
+const (
+	SocialMediaPlatformTwitter         SocialMediaPlatform = "Twitter"
+	SocialMediaPlatformFacebook        SocialMediaPlatform = "Facebook"
+	SocialMediaPlatformInstagram       SocialMediaPlatform = "Instagram"
+	SocialMediaPlatformYouTube         SocialMediaPlatform = "YouTube"
+	SocialMediaPlatformSoundcloud      SocialMediaPlatform = "Soundcloud"
+	SocialMediaPlatformResidentAdvisor SocialMediaPlatform = "ResidentAdvisor"
+)
+
+var AllSocialMediaPlatform = []SocialMediaPlatform{
+	SocialMediaPlatformTwitter,
+	SocialMediaPlatformFacebook,
+	SocialMediaPlatformInstagram,
+	SocialMediaPlatformYouTube,
+	SocialMediaPlatformSoundcloud,
+	SocialMediaPlatformResidentAdvisor,
+}
+
+func (e SocialMediaPlatform) IsValid() bool {
+	switch e {
+	case SocialMediaPlatformTwitter, SocialMediaPlatformFacebook, SocialMediaPlatformInstagram, SocialMediaPlatformYouTube, SocialMediaPlatformSoundcloud, SocialMediaPlatformResidentAdvisor:
+		return true
+	}
+	return false
+}
+
+func (e SocialMediaPlatform) String() string {
+	return string(e)
+}
+
+func (e *SocialMediaPlatform) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SocialMediaPlatform(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SocialMediaPlatform", str)
+	}
+	return nil
+}
+
+func (e SocialMediaPlatform) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

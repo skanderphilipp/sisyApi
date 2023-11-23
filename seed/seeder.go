@@ -4,12 +4,12 @@ import (
 	"errors"
 	"time"
 
+	"github.com/blnto/blnto_service/internal/domain/artist"
+	"github.com/blnto/blnto_service/internal/domain/event"
+	"github.com/blnto/blnto_service/internal/domain/stage"
+	"github.com/blnto/blnto_service/internal/domain/venue"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/artist"
-	"github.com/skanderphilipp/sisyApi/internal/domain/event"
-	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
-	"github.com/skanderphilipp/sisyApi/internal/domain/venue"
 	"gorm.io/gorm"
 )
 

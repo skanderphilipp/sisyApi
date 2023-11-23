@@ -1,11 +1,13 @@
 package internal
 
 import (
-	"github.com/skanderphilipp/sisyApi/internal/api/graphql/resolvers"
-	"github.com/skanderphilipp/sisyApi/internal/application/service"
-	"github.com/skanderphilipp/sisyApi/internal/infrastructure/repository"
+	"github.com/blnto/blnto_service/internal/api/graphql/resolvers"
+	"github.com/blnto/blnto_service/internal/application/service"
+	"github.com/blnto/blnto_service/internal/infrastructure/repository"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm"
+	"os"
 )
 
 type App struct {
@@ -15,6 +17,7 @@ type App struct {
 	StageService     *service.StageService
 	VenueService     *service.VenueService
 	Logger           *zap.Logger
+	Loggerfile       *os.File
 	Resolver         *resolvers.Resolver
 	ArtistRepository *repository.ArtistRepository
 	VenueRepository  *repository.VenueRepository
@@ -30,6 +33,7 @@ func NewApp(config *App) *App {
 		StageService:     config.StageService,
 		VenueService:     config.VenueService,
 		Logger:           config.Logger,
+		Loggerfile:       config.Loggerfile,
 		Resolver:         config.Resolver,
 		ArtistRepository: config.ArtistRepository,
 		VenueRepository:  config.VenueRepository,
@@ -60,7 +64,8 @@ func InitializeDependencies() (*App, error) {
 	venueService := service.NewVenueService(venueRepo)
 
 	// Create a logger
-	logger, err := zap.NewDevelopment()
+	logger, file, err := provideLogger()
+
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +80,7 @@ func InitializeDependencies() (*App, error) {
 		StageService:     stageService,
 		VenueService:     venueService,
 		Logger:           logger,
+		Loggerfile:       file,
 		Resolver:         resolver,
 		ArtistRepository: artistRepo,
 		VenueRepository:  venueRepo,
@@ -84,14 +90,26 @@ func InitializeDependencies() (*App, error) {
 	return NewApp(appConfig), nil
 }
 
-func provideLogger() (*zap.Logger, error) {
-	logger, err := zap.NewDevelopment()
-	return logger, err
-}
-func provideAritstService(repo *repository.ArtistRepository) *service.ArtistService {
-	return service.NewArtistService(repo)
-}
+func provideLogger() (*zap.Logger, *os.File, error) {
+	// Create a file to write logs to
+	file, err := os.OpenFile("logs.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-func provideArtistRepository(db *gorm.DB) *repository.ArtistRepository {
-	return repository.NewArtistRepository(db)
+	// Create a core
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encoderConfig),
+		zapcore.AddSync(file),
+		zapcore.InfoLevel,
+	)
+
+	// Create a logger
+	logger := zap.New(core)
+
+	// Example log
+	logger.Info("This is a JSON log message", zap.String("type", "example"))
+	return logger, file, nil
 }

@@ -3,8 +3,8 @@ package venue
 import (
 	"time"
 
+	"github.com/blnto/blnto_service/internal/domain/stage"
 	"github.com/google/uuid"
-	"github.com/skanderphilipp/sisyApi/internal/domain/stage"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ type Venue struct {
 	// Additional fields like CreatedAt, UpdatedAt can be added.
 }
 
-// Venue BeforeCreate hook
+// BeforeCreate Venue BeforeCreate hook
 func (v *Venue) BeforeCreate(tx *gorm.DB) (err error) {
 	if v.ID == uuid.Nil {
 		v.ID = uuid.New()
